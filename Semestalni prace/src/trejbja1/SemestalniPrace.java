@@ -4,6 +4,8 @@
  */
 package trejbja1;
 
+import java.util.Scanner;
+
 /**
  *
  * @author Jan
@@ -15,5 +17,7 @@ public class SemestalniPrace {
      */
     public static void main(String[] args) {
         // TODO code application logic here
+      App okno = new App();
+      okno.main(null);
     }
 }
