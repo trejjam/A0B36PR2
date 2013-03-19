@@ -54,7 +54,7 @@ public class App extends javax.swing.JFrame {
       .addGroup(jPanel1Layout.createSequentialGroup()
         .addContainerGap()
         .addComponent(jButton1)
-        .addContainerGap(321, Short.MAX_VALUE))
+        .addContainerGap(299, Short.MAX_VALUE))
     );
 
     jButton1.getAccessibleContext().setAccessibleName("conn");
@@ -101,7 +101,7 @@ public class App extends javax.swing.JFrame {
           .addComponent(jFormattedTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addComponent(jButton2)
-        .addContainerGap(270, Short.MAX_VALUE))
+        .addContainerGap(248, Short.MAX_VALUE))
     );
 
     jComboBox1.getAccessibleContext().setAccessibleName("ipBox");
