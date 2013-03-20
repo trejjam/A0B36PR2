@@ -4,6 +4,8 @@
  */
 package trejbja1;
 
+import javax.swing.ImageIcon;
+
 /**
  *
  * @author Jan
@@ -16,6 +18,8 @@ public class App extends javax.swing.JFrame {
    */
   public App() {
     initComponents();
+    
+    bridgeInit();
   }
 
   /**
@@ -28,7 +32,6 @@ public class App extends javax.swing.JFrame {
   private void initComponents() {
 
     jTabbedPane1 = new javax.swing.JTabbedPane();
-    bridgeInit();
     jPanel1 = new javax.swing.JPanel();
     conn = new javax.swing.JButton();
     jPanel2 = new javax.swing.JPanel();
@@ -39,6 +42,8 @@ public class App extends javax.swing.JFrame {
     save = new javax.swing.JButton();
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+    jTabbedPane1.setName("LBoat"); // NOI18N
 
     conn.setText("Připojit");
     conn.addActionListener(new java.awt.event.ActionListener() {
@@ -61,7 +66,7 @@ public class App extends javax.swing.JFrame {
       .addGroup(jPanel1Layout.createSequentialGroup()
         .addContainerGap()
         .addComponent(conn)
-        .addContainerGap(299, Short.MAX_VALUE))
+        .addContainerGap(321, Short.MAX_VALUE))
     );
 
     conn.getAccessibleContext().setAccessibleName("conn");
@@ -113,7 +118,7 @@ public class App extends javax.swing.JFrame {
           .addComponent(port, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
         .addComponent(save)
-        .addContainerGap(248, Short.MAX_VALUE))
+        .addContainerGap(270, Short.MAX_VALUE))
     );
 
     ipAddress.getAccessibleContext().setAccessibleName("ipBox");
@@ -139,7 +144,13 @@ public class App extends javax.swing.JFrame {
   private void bridgeInit() {
     if (bridge==null) {
       bridge = new BridgeAppCode();
+      setIcon();
     }
+  }
+  
+  private void setIcon() {
+    ImageIcon img = new ImageIcon("D:/NETBEANSPROJECTS/A0B36PR2/A0B36PR2/Semestalni prace/src/trejbja1/ship.png");
+    this.setIconImage(img.getImage());
   }
   
   private void connActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connActionPerformed
