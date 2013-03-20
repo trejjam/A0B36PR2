@@ -18,6 +18,15 @@ public class SemestalniPrace {
     public static void main(String[] args) {
         // TODO code application logic here
       App okno = new App();
-      okno.main(null);
+      okno.init();
     }
+    
+    /*
+     * Connect to Wifi Win Vista - 8
+     * http://www.hanselman.com/blog/HowToConnectToAWirelessWIFINetworkFromTheCommandLineInWindows7.aspx
+     *
+     * CMD
+     * http://stackoverflow.com/questions/4157303/how-to-execute-cmd-commands-via-java
+     * 
+     */
 }

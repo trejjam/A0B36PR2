@@ -9,6 +9,7 @@ package trejbja1;
  * @author Jan
  */
 public class App extends javax.swing.JFrame {
+  BridgeAppCode bridge;
 
   /**
    * Creates new form App
@@ -27,18 +28,24 @@ public class App extends javax.swing.JFrame {
   private void initComponents() {
 
     jTabbedPane1 = new javax.swing.JTabbedPane();
+    bridgeInit();
     jPanel1 = new javax.swing.JPanel();
-    jButton1 = new javax.swing.JButton();
+    conn = new javax.swing.JButton();
     jPanel2 = new javax.swing.JPanel();
-    jComboBox1 = new javax.swing.JComboBox();
+    ipAddress = new javax.swing.JComboBox();
     jLabel1 = new javax.swing.JLabel();
     jLabel2 = new javax.swing.JLabel();
-    jFormattedTextField1 = new javax.swing.JFormattedTextField();
-    jButton2 = new javax.swing.JButton();
+    port = new javax.swing.JFormattedTextField();
+    save = new javax.swing.JButton();
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-    jButton1.setText("Připojit");
+    conn.setText("Připojit");
+    conn.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        connActionPerformed(evt);
+      }
+    });
 
     javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
     jPanel1.setLayout(jPanel1Layout);
@@ -46,18 +53,18 @@ public class App extends javax.swing.JFrame {
       jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(jPanel1Layout.createSequentialGroup()
         .addContainerGap()
-        .addComponent(jButton1)
+        .addComponent(conn)
         .addContainerGap(605, Short.MAX_VALUE))
     );
     jPanel1Layout.setVerticalGroup(
       jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(jPanel1Layout.createSequentialGroup()
         .addContainerGap()
-        .addComponent(jButton1)
+        .addComponent(conn)
         .addContainerGap(299, Short.MAX_VALUE))
     );
 
-    jButton1.getAccessibleContext().setAccessibleName("conn");
+    conn.getAccessibleContext().setAccessibleName("conn");
 
     jTabbedPane1.addTab("Ovládání", jPanel1);
     jPanel1.getAccessibleContext().setAccessibleName("control");
@@ -66,9 +73,14 @@ public class App extends javax.swing.JFrame {
 
     jLabel2.setText("Port");
 
-    jFormattedTextField1.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
+    port.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
 
-    jButton2.setText("Uložit");
+    save.setText("Uložit");
+    save.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        saveActionPerformed(evt);
+      }
+    });
 
     javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
     jPanel2.setLayout(jPanel2Layout);
@@ -80,12 +92,12 @@ public class App extends javax.swing.JFrame {
           .addGroup(jPanel2Layout.createSequentialGroup()
             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
               .addComponent(jLabel1)
-              .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE))
+              .addComponent(ipAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGap(18, 18, 18)
             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-              .addComponent(jFormattedTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
+              .addComponent(port, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
               .addComponent(jLabel2)))
-          .addComponent(jButton2))
+          .addComponent(save))
         .addContainerGap(300, Short.MAX_VALUE))
     );
     jPanel2Layout.setVerticalGroup(
@@ -97,15 +109,15 @@ public class App extends javax.swing.JFrame {
           .addComponent(jLabel2))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-          .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-          .addComponent(jFormattedTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+          .addComponent(ipAddress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addComponent(port, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-        .addComponent(jButton2)
+        .addComponent(save)
         .addContainerGap(248, Short.MAX_VALUE))
     );
 
-    jComboBox1.getAccessibleContext().setAccessibleName("ipBox");
-    jButton2.getAccessibleContext().setAccessibleName("save");
+    ipAddress.getAccessibleContext().setAccessibleName("ipBox");
+    save.getAccessibleContext().setAccessibleName("save");
 
     jTabbedPane1.addTab("Nastavení připojení", jPanel2);
     jPanel2.getAccessibleContext().setAccessibleName("settings");
@@ -124,10 +136,25 @@ public class App extends javax.swing.JFrame {
     pack();
   }// </editor-fold>//GEN-END:initComponents
 
-  /**
-   * @param args the command line arguments
-   */
-  public static void main(String args[]) {
+  private void bridgeInit() {
+    if (bridge==null) {
+      bridge = new BridgeAppCode();
+    }
+  }
+  
+  private void connActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connActionPerformed
+    // TODO add your handling code here:
+    //bridgeInit();
+    bridge.connButton();
+  }//GEN-LAST:event_connActionPerformed
+
+  private void saveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveActionPerformed
+    // TODO add your handling code here:
+    bridge.saveSettings();
+  }//GEN-LAST:event_saveActionPerformed
+
+  
+  public void init() {
     /* Set the Nimbus look and feel */
     //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -153,20 +180,21 @@ public class App extends javax.swing.JFrame {
 
     /* Create and display the form */
     java.awt.EventQueue.invokeLater(new Runnable() {
+      @Override
       public void run() {
         new App().setVisible(true);
       }
     });
   }
   // Variables declaration - do not modify//GEN-BEGIN:variables
-  private javax.swing.JButton jButton1;
-  private javax.swing.JButton jButton2;
-  private javax.swing.JComboBox jComboBox1;
-  private javax.swing.JFormattedTextField jFormattedTextField1;
+  private javax.swing.JButton conn;
+  private javax.swing.JComboBox ipAddress;
   private javax.swing.JLabel jLabel1;
   private javax.swing.JLabel jLabel2;
   private javax.swing.JPanel jPanel1;
   private javax.swing.JPanel jPanel2;
   private javax.swing.JTabbedPane jTabbedPane1;
+  private javax.swing.JFormattedTextField port;
+  private javax.swing.JButton save;
   // End of variables declaration//GEN-END:variables
 }
