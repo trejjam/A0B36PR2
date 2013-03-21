@@ -4,7 +4,11 @@
  */
 package trejbja1;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 /**
  *
@@ -149,7 +153,8 @@ public class App extends javax.swing.JFrame {
   }
   
   private void setIcon() {
-    ImageIcon img = new ImageIcon("D:/NETBEANSPROJECTS/A0B36PR2/A0B36PR2/Semestalni prace/src/trejbja1/ship.png");
+    ImageIcon img = new ImageIcon(getClass().getResource("/resources/ship.png"));
+    
     this.setIconImage(img.getImage());
   }
   
@@ -166,29 +171,6 @@ public class App extends javax.swing.JFrame {
 
   
   public void init() {
-    /* Set the Nimbus look and feel */
-    //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-     * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-     */
-    try {
-      for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-        if ("Nimbus".equals(info.getName())) {
-          javax.swing.UIManager.setLookAndFeel(info.getClassName());
-          break;
-        }
-      }
-    } catch (ClassNotFoundException ex) {
-      java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (InstantiationException ex) {
-      java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (IllegalAccessException ex) {
-      java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-      java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    }
-    //</editor-fold>
-
     /* Create and display the form */
     java.awt.EventQueue.invokeLater(new Runnable() {
       @Override
@@ -197,6 +179,24 @@ public class App extends javax.swing.JFrame {
       }
     });
   }
+  
+/*  public void redesign() {
+    try {
+      //UIManager.setLookAndFeel("javax.swing.plaf.synth.SynthLookAndFeel");
+      UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+    } 
+    
+    catch (ClassNotFoundException ex) {
+      Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+    } catch (InstantiationException ex) {
+      Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+    } catch (IllegalAccessException ex) {
+      Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+    } catch (UnsupportedLookAndFeelException ex) {
+      Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+    }
+  }*/
+  
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton conn;
   private javax.swing.JComboBox ipAddress;
