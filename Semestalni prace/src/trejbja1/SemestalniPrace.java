@@ -4,10 +4,6 @@
  */
 package trejbja1;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Scanner;
-
 /**
  *
  * @author Jan
@@ -19,10 +15,14 @@ public class SemestalniPrace {
      */
     public static void main(String[] args) {
         // TODO code application logic here
+      TcpIp conn= new TcpIp("");
+      
+      
+      
       App okno = new App();
       okno.init();
- /*     
-      try {
+        
+/*      try {
         //test win cmd
           // Execute command
           String command = "cmd /c start cmd.exe";
@@ -37,6 +37,7 @@ public class SemestalniPrace {
           out.close();
       } catch (IOException e) {
       }*/
+
     }
     
     /*
@@ -46,5 +47,7 @@ public class SemestalniPrace {
      * CMD
      * http://stackoverflow.com/questions/4157303/how-to-execute-cmd-commands-via-java
      * 
+     * LookAndFeel
+     * http://docs.oracle.com/javase/1.5.0/docs/api/javax/swing/plaf/basic/BasicLookAndFeel.html
      */
 }
