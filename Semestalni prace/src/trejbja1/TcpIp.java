@@ -21,13 +21,22 @@ public class TcpIp {
   private int port=0;
   private boolean TcpThread=false;
   
+  private Object lock = new Object();
+  private Object lockSend = new Object();
+  
   Queue<Integer> fifo = null;
+  Queue<Integer> fifoSend = null;
   
   Thread tcpThread = null;
   TcpThread threadContent = null;
   
   public TcpIp() {
-    fifo = new LinkedList<>();
+    synchronized (lock) {
+      fifo = new LinkedList<>();
+    }
+    synchronized (lockSend) {
+      fifoSend = new LinkedList<>();
+    }
   }
   
   public TcpIp(String IP) {
@@ -43,7 +52,7 @@ public class TcpIp {
     conn();
   }
   
-  public boolean conn() {
+  public final boolean conn() {
     return conn(IP, port);
   }
   
@@ -66,24 +75,53 @@ public class TcpIp {
     return true;
   }
   
+  public void close() {
+    TcpThread=false;
+  }
+  
   public int read() {
-    if (!fifo.isEmpty()) {
-      return fifo.remove();
+    synchronized (lock) {
+      if (!fifo.isEmpty()) {
+        return fifo.remove();
+      }
     }
     return -1;
   }
   
-  public void send(String data) {
-    threadContent.sendData(data);
+  public boolean send(String data) {
+    if (isConnected()) {
+      threadContent.sendData(data);
+    }
+    else {
+      return false;
+    }
+    return true;
   }
+  
+  public boolean isConnected() {
+      return threadContent.isConnected();
+    }
   
   private class TcpThread implements Runnable {
     private PrintWriter streamOut=null;
     private BufferedReader streamIn=null;
 
     private Socket socket = null;
+    private String IP;
+    private int port;
+    
+    Thread tcpThreadSend = null;
+    TcpThreadSend threadSendContent = null;
   
     public TcpThread(String IP, int port) {
+      this.IP=IP;
+      this.port=port;
+    }
+
+    @Override
+    public void run() {
+      String message;
+      
       try {
         socket= new Socket(IP, port);
         TcpThread=true;
@@ -103,21 +141,27 @@ public class TcpIp {
         //chyba
         Logger.getLogger(TcpIp.class.getName()).log(Level.SEVERE, null, ex);
       }
-    }
-
-    @Override
-    public void run() {
-      String message;
+      
+      startSendThread();
       
       while(TcpThread)
       {
         try {
+          if (!socket.isConnected()) {
+            TcpThread=false;
+            break;
+          }
+          if (!streamIn.ready()) {
+            continue;
+          }
           // jinak precteme, co server odpovedel a vypiseme 
           message = streamIn.readLine();
           System.out.println("Message: " + message);
           
-          for (int i=0; i<message.length(); i++) {
-            fifo.add(new Integer (message.charAt(i)));
+          synchronized (lock) {
+            for (int i=0; i<message.length(); i++) {
+              fifo.add(new Integer (message.charAt(i)));
+            }
           }
         }
         catch (IOException ex) {
@@ -143,13 +187,50 @@ public class TcpIp {
       }
     }
     
+    private void startSendThread() {
+      threadSendContent= new TcpThreadSend();
+    
+      tcpThreadSend=new Thread(threadSendContent);
+      tcpThreadSend.setDaemon(true);
+
+      tcpThreadSend.start();
+    }
+    
     public void sendData(String data) {
-      // takhle se posilaji data serveru
-      streamOut.println(data);
+      synchronized (lockSend) {
+        for (int i=0; i<data.length(); i++) {
+          fifoSend.add(new Integer (data.charAt(i)));
+        }
+      }
+      tcpThreadSend.interrupt();
     }
     
     public void close() {
       TcpThread=false;
     }
+    
+    public boolean isConnected() {
+      return socket.isConnected();
+    }
+    
+      protected class TcpThreadSend implements Runnable {
+        @Override
+        public void run() {
+          while(TcpThread)
+          {
+            synchronized (lockSend) {
+              while(!fifoSend.isEmpty()) {
+                // odesílání dat serveru
+                streamOut.println(fifoSend.remove().toString());
+              }
+            }
+            try {
+              tcpThreadSend.wait();
+            } catch (InterruptedException ex) {
+              Logger.getLogger(TcpIp.class.getName()).log(Level.SEVERE, null, ex);
+            }
+          }
+        }
+      }
   }
 }

@@ -14,10 +14,18 @@ public class SemestalniPrace {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+      boolean send=true;
         // TODO code application logic here
-      TcpIp conn= new TcpIp("");
+      TcpIp conn= new TcpIp("localhost", 21);
       
-      
+/*      conn.close();
+      conn=null;
+*/      
+      while(send) {
+        conn.send("A");
+        
+        conn.send("b");
+      }
       
       App okno = new App();
       okno.init();
