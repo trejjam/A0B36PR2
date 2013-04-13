@@ -4,6 +4,9 @@
  */
 package trejbja1;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author Jan
@@ -16,16 +19,23 @@ public class SemestalniPrace {
     public static void main(String[] args) {
       boolean send=true;
         // TODO code application logic here
-      TcpIp conn= new TcpIp("localhost", 21);
+      
       
 /*      conn.close();
       conn=null;
 */      
-      while(send) {
+      /*while(send) {
+        try {
+          Thread.sleep(50);
+        } catch (InterruptedException ex) {
+          Logger.getLogger(SemestalniPrace.class.getName()).log(Level.SEVERE, null, ex);
+        }
         conn.send("A");
+        System.out.println("A");
         
         conn.send("b");
-      }
+        System.out.println("b");
+      }*/
       
       App okno = new App();
       okno.init();

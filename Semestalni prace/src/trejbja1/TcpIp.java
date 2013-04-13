@@ -24,11 +24,18 @@ public class TcpIp {
   private Object lock = new Object();
   private Object lockSend = new Object();
   
-  Queue<Integer> fifo = null;
-  Queue<Integer> fifoSend = null;
+  private Queue<Integer> fifo = null;
+  private Queue<Integer> fifoSend = null;
   
-  Thread tcpThread = null;
-  TcpThread threadContent = null;
+  private Thread tcpThread = null;
+  private TcpThread threadContent = null;
+  
+  private Thread tcpThreadSend = null;
+  private TcpThreadSend threadSendContent = null;
+  
+  private Socket socket = null;
+  private PrintWriter streamOut=null;
+  private BufferedReader streamIn=null;
   
   public TcpIp() {
     synchronized (lock) {
@@ -90,7 +97,13 @@ public class TcpIp {
   
   public boolean send(String data) {
     if (isConnected()) {
-      threadContent.sendData(data);
+      synchronized (lockSend) {
+        for (int i=0; i<data.length(); i++) {
+          fifoSend.add(new Integer (data.charAt(i)));
+        }
+      }
+      
+      tcpThreadSend.interrupt();
     }
     else {
       return false;
@@ -99,19 +112,12 @@ public class TcpIp {
   }
   
   public boolean isConnected() {
-      return threadContent.isConnected();
-    }
+    return socket.isConnected();
+  }
   
   private class TcpThread implements Runnable {
-    private PrintWriter streamOut=null;
-    private BufferedReader streamIn=null;
-
-    private Socket socket = null;
     private String IP;
     private int port;
-    
-    Thread tcpThreadSend = null;
-    TcpThreadSend threadSendContent = null;
   
     public TcpThread(String IP, int port) {
       this.IP=IP;
@@ -192,45 +198,29 @@ public class TcpIp {
     
       tcpThreadSend=new Thread(threadSendContent);
       tcpThreadSend.setDaemon(true);
+      tcpThreadSend.setPriority(1);
 
       tcpThreadSend.start();
     }
-    
-    public void sendData(String data) {
-      synchronized (lockSend) {
-        for (int i=0; i<data.length(); i++) {
-          fifoSend.add(new Integer (data.charAt(i)));
-        }
-      }
-      tcpThreadSend.interrupt();
-    }
-    
-    public void close() {
-      TcpThread=false;
-    }
-    
-    public boolean isConnected() {
-      return socket.isConnected();
-    }
-    
-      protected class TcpThreadSend implements Runnable {
-        @Override
-        public void run() {
-          while(TcpThread)
-          {
-            synchronized (lockSend) {
-              while(!fifoSend.isEmpty()) {
-                // odesílání dat serveru
-                streamOut.println(fifoSend.remove().toString());
-              }
-            }
-            try {
-              tcpThreadSend.wait();
-            } catch (InterruptedException ex) {
-              Logger.getLogger(TcpIp.class.getName()).log(Level.SEVERE, null, ex);
-            }
+  }
+  private class TcpThreadSend implements Runnable {
+    @Override
+    public void run() {
+      while(TcpThread)
+      {
+        synchronized (lockSend) {
+          while(!fifoSend.isEmpty()) {
+            // odesílání dat serveru
+            streamOut.println(Character.toChars(fifoSend.remove()));
           }
         }
+
+        try {              
+          tcpThreadSend.join();
+        } catch (InterruptedException ex) {
+          //Probuzení vlákna
+        }
       }
+    }
   }
 }
