@@ -13,13 +13,21 @@ import java.util.logging.Logger;
  */
 public class BridgeAppCode {
   TcpIp conn= null;
+  App app;
   
-  public BridgeAppCode() { //init
+  public BridgeAppCode(App app) { //init
     System.out.println("create bridge");
+    this.app=app;
   }
   public void connButton() {
     if (conn==null) {
       conn=new TcpIp("localhost", 21);
+      app.conn.setText("Odpojit");
+    }
+    else {
+      conn.close();
+      conn=null;
+      app.conn.setText("Připojit");  
     }
     System.out.println("connButton");
   }
