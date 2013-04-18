@@ -37,6 +37,9 @@ public class SemestalniPrace {
         System.out.println("b");
       }*/
       
+      //Xml xml=new Xml("config.sys");
+      //xml.Load();
+      
       App okno = new App();
       okno.init();
         

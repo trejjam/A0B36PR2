@@ -34,7 +34,7 @@ public class TcpIp {
   private TcpThreadSend threadSendContent = null;
   
   private Socket socket = null;
-  private PrintWriter streamOut=null;
+  private BufferedOutputStream streamOut = null;
   private BufferedReader streamIn=null;
   
   public TcpIp() {
@@ -140,7 +140,7 @@ public class TcpIp {
       }
       
       try {
-        streamOut = new PrintWriter(socket.getOutputStream(), true);
+        streamOut = new BufferedOutputStream(socket.getOutputStream());
         streamIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
       }
       catch (IOException ex) {
@@ -210,8 +210,15 @@ public class TcpIp {
       {
         synchronized (lockSend) {
           while(!fifoSend.isEmpty()) {
-            // odesílání dat serveru
-            streamOut.println(Character.toChars(fifoSend.remove()));
+              try {
+                  // odesílání dat serveru
+                  //streamOut.print(Character.toChars(fifoSend.remove()));
+                  //streamOut.printf("%c", Character.toChars(fifoSend.remove()));
+                    streamOut.write(fifoSend.remove());
+                    streamOut.flush();
+              } catch (IOException ex) {
+                  Logger.getLogger(TcpIp.class.getName()).log(Level.SEVERE, null, ex);
+              }
           }
         }
 

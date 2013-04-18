@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<localizableStrings>
+  <meta>
+    <appName>Lboat</appName>
+    <version>1.0</version>
+    <author>TREMI s.r.o. - Jan Trejbal</author>
+    <language>multilingual</language>
+    <grouping>multi</grouping>
+  </meta> 
+  <group id="Lang">
+    <string id="LanguageName">
+      <text lang="cz">Čeština</text>
+      <text lang="en">English</text>
+      <text lang="de">Deutch</text>
+      <text lang="po">Poland</text>
+    </string>
+  </group>
+  <group id="main">
+    <string id="AppName">
+      <text lang="cz">Lboat</text>
+      <text lang="en">Lboat</text>
+    </string>
+    <string id="Connect">
+      <text lang="cz">Připojit</text>
+      <text lang="en">Connect</text>
+    </string>
+    <string id="AbortConnect">
+      <text lang="cz">Zrušit</text>
+      <text lang="en">Abort</text>
+    </string>
+    <string id="Disconnect">
+      <text lang="cz">Odpojit</text>
+      <text lang="en">Disconect</text>
+    </string>
+  </group>
+  <group id="settings">
+    <string id="ConnectSettings">
+      <text lang="cz">Nastavení připojení</text>
+      <text lang="en">Connect settings</text>
+    </string>
+    <string id="IpAddress">
+      <text lang="cz">IP adresa</text>
+      <text lang="en">IP address</text>
+    </string>
+    <string id="Port">
+      <text lang="cz">Port</text>
+      <text lang="en">Port</text>
+    </string>
+    <string id="WifiNetwork">
+      <text lang="cz">WiFi síť</text>
+      <text lang="en">WiFi network</text>
+    </string>
+    <string id="WifiPassword">
+      <text lang="cz">Heslo</text>
+      <text lang="en">Password</text>
+    </string>
+    <string id="Language">
+      <text lang="cz">Jazyk</text>
+      <text lang="en">Language</text>
+    </string>
+    <string id="Save">
+      <text lang="cz">Uložit</text>
+      <text lang="en">Save</text>
+    </string>
+    <string id="Close">
+      <text lang="cz">Zavřít</text>
+      <text lang="en">Close</text>
+    </string>
+  </group>
+</localizableStrings> 
