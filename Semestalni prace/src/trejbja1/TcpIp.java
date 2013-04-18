@@ -206,6 +206,7 @@ public class TcpIp {
   private class TcpThreadSend implements Runnable {
     @Override
     public void run() {
+        boolean sendAble=false;
       while(TcpThread)
       {
         synchronized (lockSend) {
@@ -215,11 +216,20 @@ public class TcpIp {
                   //streamOut.print(Character.toChars(fifoSend.remove()));
                   //streamOut.printf("%c", Character.toChars(fifoSend.remove()));
                     streamOut.write(fifoSend.remove());
-                    streamOut.flush();
+                    sendAble=true;
               } catch (IOException ex) {
                   Logger.getLogger(TcpIp.class.getName()).log(Level.SEVERE, null, ex);
               }
           }
+        }
+        
+        if (sendAble) {
+            sendAble=false;
+            try {
+                streamOut.flush();
+            } catch (IOException ex) {
+                Logger.getLogger(TcpIp.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
 
         try {              
