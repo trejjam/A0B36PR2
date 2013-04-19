@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<localizableStrings>
+  <meta>
+    <appName>Lboat</appName>
+    <version>1.0</version>
+    <author>TREMI s.r.o. - Jan Trejbal</author>
+    <language>multilingual</language>
+    <grouping>multi</grouping>
+  </meta>
+  <group id="Config">
+    <text id="LanguageFile">language.xml</text>
+    <text id="Language">cz</text>
+    <text id="SetNetwork">False</text>
+    <text id="Network">LBoat</text>
+    <text id="NetworkPassword">8cQ8G3SsDELDzZH2a1c2Pw==</text>
+    <text id="PasswordHashCode">secret</text>
+    <text id="Port">5004</text>
+    <text id="LastIp">192.168.3.3</text>
+    <text id="IP_1">192.168.3.3</text>
+    <text id="IP_2">192.168.3.4</text>
+    <text id="IP_3">192.168.3.5</text>
+    <text id="IP_4">192.168.10.3</text>
+    <text id="IP_5">192.168.10.1</text>
+    <text id="IpCount">5</text>
+  </group>
+</localizableStrings>
