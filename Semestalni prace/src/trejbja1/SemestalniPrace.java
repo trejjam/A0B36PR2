@@ -4,8 +4,12 @@
  */
 package trejbja1;
 
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -17,31 +21,11 @@ public class SemestalniPrace {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-      boolean send=true;
+        boolean send=true;
         // TODO code application logic here
-      
-      
-/*      conn.close();
-      conn=null;
-*/      
-      /*while(send) {
-        try {
-          Thread.sleep(50);
-        } catch (InterruptedException ex) {
-          Logger.getLogger(SemestalniPrace.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        conn.send("A");
-        System.out.println("A");
-        
-        conn.send("b");
-        System.out.println("b");
-      }*/
-      
-      //Xml xml=new Xml("config.sys");
-      //xml.Load();
-      
-      App okno = new App();
-      okno.init();
+
+        App okno = new App();
+        okno.init();
         
 /*      try {
         //test win cmd
@@ -70,5 +54,9 @@ public class SemestalniPrace {
      * 
      * LookAndFeel
      * http://docs.oracle.com/javase/1.5.0/docs/api/javax/swing/plaf/basic/BasicLookAndFeel.html
+     * 
+     * XML
+     * http://examples.javacodegeeks.com/core-java/xml/xpath/find-elements-by-attributes-with-xpath/
+     * 
      */
 }
