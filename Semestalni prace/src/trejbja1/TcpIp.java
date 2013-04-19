@@ -162,7 +162,10 @@ public class TcpIp {
           }
           // jinak precteme, co server odpovedel a vypiseme 
           message = streamIn.readLine();
-          System.out.println("Message: " + message);
+          System.out.print("In: " + message + " - ");
+          for (int i=0; i<message.length(); i++) {
+              System.out.println(new Integer (message.charAt(i)));
+            }
           
           synchronized (lock) {
             for (int i=0; i<message.length(); i++) {
