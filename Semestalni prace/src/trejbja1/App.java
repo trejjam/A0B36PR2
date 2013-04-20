@@ -4,26 +4,42 @@
  */
 package trejbja1;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
 /**
  *
  * @author Jan
  */
 public class App extends javax.swing.JFrame {
-  BridgeAppCode bridge;
-
-  /**
-   * Creates new form App
-   */
-  public App() {
-    initComponents();
-    
-    bridgeInit();
+  private BridgeAppCode bridge;
+  private DefaultComboBoxModel IPmodel = new javax.swing.DefaultComboBoxModel(new String[] {});
+  private String sLastIp="";
+  private String sPort="";
+  
+  
+  public void setLastIp(String sLastIp) {
+      this.sLastIp=sLastIp;
+  }
+  
+  public void setPort(String sPort) {
+      this.sPort=sPort;
+  }
+  
+  public void setPort(DefaultComboBoxModel IPmodel) {
+      this.IPmodel=IPmodel;
+  }
+  
+  public DefaultComboBoxModel getIpModul() {
+      return IPmodel;
+  }
+  
+  public String getIP() {
+      return ipAddress.getSelectedItem().toString();
+  }
+  
+  public int getPort() {
+      return Integer.parseInt(port.getText());
   }
 
   /**
@@ -73,7 +89,7 @@ public class App extends javax.swing.JFrame {
                 .addComponent(conn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButton1)
-                .addContainerGap(536, Short.MAX_VALUE))
+                .addContainerGap(516, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -90,6 +106,9 @@ public class App extends javax.swing.JFrame {
         jTabbedPane1.addTab("Ovládání", jPanel1);
         jPanel1.getAccessibleContext().setAccessibleName("control");
 
+        ipAddress.setEditable(true);
+        ipAddress.setModel(IPmodel);
+        ipAddress.setSelectedItem(sLastIp);
         ipAddress.setToolTipText("");
 
         jLabel1.setText("IP adresa");
@@ -97,6 +116,7 @@ public class App extends javax.swing.JFrame {
         jLabel2.setText("Port");
 
         port.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
+        port.setText(sPort);
 
         save.setText("Uložit");
         save.addActionListener(new java.awt.event.ActionListener() {
@@ -121,7 +141,7 @@ public class App extends javax.swing.JFrame {
                             .addComponent(port, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel2)))
                     .addComponent(save))
-                .addContainerGap(300, Short.MAX_VALUE))
+                .addContainerGap(280, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -149,7 +169,10 @@ public class App extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jTabbedPane1)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -192,10 +215,13 @@ public class App extends javax.swing.JFrame {
   public void init() {
     /* Create and display the form */
     java.awt.EventQueue.invokeLater(new Runnable() {
-      @Override
-      public void run() {
-        new App().setVisible(true);
-      }
+        @Override
+        public void run() {
+            App app=new App();
+            app.bridgeInit();
+            app.initComponents();
+            app.setVisible(true);
+        }
     });
   }
   
@@ -223,9 +249,9 @@ public class App extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
+    public javax.swing.JPanel jPanel2;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JFormattedTextField port;
+    public javax.swing.JFormattedTextField port;
     private javax.swing.JButton save;
     // End of variables declaration//GEN-END:variables
 }

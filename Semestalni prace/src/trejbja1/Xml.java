@@ -4,12 +4,25 @@
  */
 package trejbja1;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
-import javax.xml.parsers.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+
 
 /**
  *
@@ -17,38 +30,37 @@ import javax.xml.parsers.*;
  */
 public class Xml {
     private String name;
-    private XMLReader parser;
+    
+    XPath xpath;
+    Document xmlDoc;
     
     public Xml(String name) {
        this.name=name; 
     } 
     
-    public void Load() {
+    public boolean Load() {
         try {
-            SAXParserFactory spf = SAXParserFactory.newInstance();
-            spf.setValidating(false);
-            SAXParser saxLevel1 = spf.newSAXParser();
-            parser = saxLevel1.getXMLReader();
-
-            //parser.setErrorHandler(new ChybyZjisteneParserem());
-            parser.setContentHandler(new DefaultHandler());   
-            parser.parse(name);
-            
-            System.out.println(name + " precten bez chyb");
-        }
-        catch(ParserConfigurationException | SAXException | IOException e){
-            e.printStackTrace();
-        }
-        
-        try {
-            System.out.println(parser.getProperty("localizableStrings").toString());
-            //ContentHandler contentHandler = parser.getContentHandler();
-            
-            
-            //System.out.println(contentHandler);
-        } catch (SAXNotRecognizedException | SAXNotSupportedException ex) {
+            privateLoad();
+            return true;
+        } catch (ParserConfigurationException | SAXException | IOException ex) {
+            //v budoucnu createXml();
             Logger.getLogger(Xml.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return false;
     }
     
+    private void privateLoad() throws ParserConfigurationException, SAXException, IOException {
+        File is = new File(name);// getClass().getResourceAsStream(name);
+        DocumentBuilderFactory xmlFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = xmlFactory.newDocumentBuilder();
+        //docBuilder.
+        xmlDoc = docBuilder.parse(is);
+        //System.out.println();
+        XPathFactory xpathFact = XPathFactory.newInstance();
+        xpath = xpathFact.newXPath();
+    }
+    
+    public String getKey(String key) throws XPathExpressionException {
+        return (String) xpath.evaluate(key, xmlDoc, XPathConstants.STRING);
+    }
 }

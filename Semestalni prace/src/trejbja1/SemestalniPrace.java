@@ -21,7 +21,6 @@ public class SemestalniPrace {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        boolean send=true;
         // TODO code application logic here
 
         App okno = new App();

@@ -164,7 +164,7 @@ public class TcpIp {
           message = streamIn.readLine();
           System.out.print("In: " + message + " - ");
           for (int i=0; i<message.length(); i++) {
-              System.out.println(new Integer (message.charAt(i)));
+              System.out.print(new Integer (message.charAt(i)) + ", ");
             }
           
           synchronized (lock) {
