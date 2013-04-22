@@ -4,6 +4,7 @@
  */
 package trejbja1;
 
+import java.awt.ComponentOrientation;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,29 +12,26 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
-import org.w3c.dom.NodeList;
 
 /**
  *
  * @author Jan
  */
 public class BridgeAppCode {
-    private TcpIp conn= null;
+    private TcpIp conn = null;
     private App app;
     private String configFile="config.sys";
     private int connDelay;
     private Timer connTimer=null;
-    
     
     //language map
     private Map<String, String> langValues;
     //element status map
     private Map<String, Integer> elementStat;
     
-    Xml xml;
-    Xml xmlLang;
+    private Xml xml;
+    private Xml xmlLang;
 
     public BridgeAppCode(App app) { //init
         System.out.println("create bridge");
@@ -48,6 +46,15 @@ public class BridgeAppCode {
         
         loadConfig();
         loadLanguageValues();
+    }
+    public App getAppRef() {
+        return app;
+    }
+    public TcpIp getTcpIpRef() {
+        return conn;
+    }
+    public Xml getXmlLang() {
+        return xmlLang;
     }
     public void connButton() {
         if (conn==null || elementStat.get("conn")==0) {
@@ -92,6 +99,36 @@ public class BridgeAppCode {
     }
     public void saveSettings() {
         System.out.println("save");
+        xml.saveConfigXml(this);
+        
+        if (!app.getLang().equals(xmlLang.getLanguageValue("Lang", "LanguageName"))) {
+            System.out.println("reInit");
+            
+            /*
+            app.setVisible(false);
+            xml=new Xml(configFile);
+            langValues = new HashMap<>();
+            
+
+            elementStat = new HashMap<>();
+            
+            app.repaint();
+            app.revalidate();
+            
+            initElementStat();
+            
+            loadConfig();
+            loadLanguageValues();
+            app.setLangValues(langValues);
+            
+            app.reInitComponents();
+            
+            
+            app.setVisible(true);
+            */
+            app.dispose();
+            app=new App();
+        }
     }
     public void getPhoto() {
         System.out.println("photo");
@@ -175,8 +212,13 @@ public class BridgeAppCode {
             Logger.getLogger(BridgeAppCode.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
     public Map<String, String> getLangValues() {
         return langValues;
+    }
+    public void initProcessDataThread() {
+        Thread processDataThred=new Thread(new ProcessData(this));
+        processDataThred.setDaemon(true);
+
+        processDataThred.start();
     }
 }

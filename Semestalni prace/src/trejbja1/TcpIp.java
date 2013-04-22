@@ -48,11 +48,9 @@ public class TcpIp {
             fifoSend = new LinkedList<>();
         }
     }
-
     public TcpIp(String IP, BridgeAppCode bridge) {
       this(IP, 5003, bridge);    
     }
-
     public TcpIp(String IP, int port, BridgeAppCode bridge) {    
       this(bridge);
 
@@ -61,15 +59,12 @@ public class TcpIp {
 
       conn();
     }
-
     public final boolean conn() {
       return conn(IP, port);
     }
-
     public boolean conn(String IP) {
       return conn(IP, port);
     }
-
     public boolean conn(String IP, int port) {
       if ("".equals(IP) || port==0) {
         return false;
@@ -84,7 +79,6 @@ public class TcpIp {
 
       return true;
     }
-
     public void close() {
       TcpThread=false;
         try {
@@ -94,7 +88,6 @@ public class TcpIp {
         }
       tcpThread.interrupt();
     }
-
     public int read() {
       synchronized (lock) {
         if (!fifo.isEmpty()) {
@@ -103,7 +96,6 @@ public class TcpIp {
       }
       return -1;
     }
-
     public boolean send(String data) {
       if (isConnected()) {
         synchronized (lockSend) {
@@ -119,14 +111,12 @@ public class TcpIp {
       }
       return true;
     }
-
     public boolean isConnected() {
       return socket.isConnected();
     }
     public int getConDelay() {
         return conDelay;
     }
-
     private class TcpThread implements Runnable {
         private String IP;
         private int port;
@@ -162,6 +152,7 @@ public class TcpIp {
 
             bridge.stopConnTimer();
             bridge.setConnButon(bridge.getLangValues().get("Disconnect"), 1);
+            bridge.initProcessDataThread();
 
             try {
                 streamOut = new BufferedOutputStream(socket.getOutputStream());
@@ -235,7 +226,6 @@ public class TcpIp {
               Logger.getLogger(TcpIp.class.getName()).log(Level.SEVERE, null, ex);
           }
       }
-
       private void startSendThread() {
         threadSendContent= new TcpThreadSend();
 

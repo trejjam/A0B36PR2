@@ -25,56 +25,53 @@ public class App extends javax.swing.JFrame {
         setIcon();
         bridgeInit();
         initComponents();
-        setVisible(true);   
+        setVisible(true);
     }
-    
     public void setLangValues(Map<String, String> langValues) {
         this.langValues = langValues;
     }
-
     public void setLastIp(String sLastIp) {
         this.sLastIp=sLastIp;
     }
-
     public void setPort(String sPort) {
         this.sPort=sPort;
     }
-    
     public void setLang(String sLang) {
         this.sLang=sLang;
     }
-
     public void setPort(DefaultComboBoxModel IPmodel) {
         this.IPmodel=IPmodel;
     }
-
     public DefaultComboBoxModel getIpModul() {
         return IPmodel;
     }
-    
     public DefaultComboBoxModel getLangModul() {
         return LangModel;
     }
-
     public String getIP() {
         return ipAddress.getSelectedItem().toString();
     }
-
     public int getPort() {
         return Integer.parseInt(port.getText());
     }
-
+    public String getLang() {
+        return langBox.getSelectedItem().toString();
+    }
     private void bridgeInit() {
         if (bridge==null) {
             bridge = new BridgeAppCode(this);
             langValues=bridge.getLangValues();
         }
     }
-
     private void setIcon() {
         ImageIcon img = new ImageIcon(getClass().getResource("/resources/ship.png"));
 
         this.setIconImage(img.getImage());
+    }
+    public void reInitComponents() {
+        IPmodel.removeAllElements();
+        LangModel.removeAllElements();
+        initComponents();
     }
 
   /**
@@ -98,7 +95,7 @@ public class App extends javax.swing.JFrame {
         port = new javax.swing.JFormattedTextField();
         save = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
-        ipAddress1 = new javax.swing.JComboBox();
+        langBox = new javax.swing.JComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -175,10 +172,10 @@ public class App extends javax.swing.JFrame {
 
         jLabel3.setText(langValues.get("Language"));
 
-        ipAddress1.setEditable(true);
-        ipAddress1.setModel(LangModel);
-        ipAddress1.setSelectedItem(sLang);
-        ipAddress1.setToolTipText("");
+        langBox.setEditable(true);
+        langBox.setModel(LangModel);
+        langBox.setSelectedItem(sLang);
+        langBox.setToolTipText("");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -193,7 +190,7 @@ public class App extends javax.swing.JFrame {
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
                                 .addComponent(jLabel3)
                                 .addGap(18, 18, 18)
-                                .addComponent(ipAddress1, 0, 1, Short.MAX_VALUE))
+                                .addComponent(langBox, 0, 1, Short.MAX_VALUE))
                             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jLabel1)
                                 .addComponent(ipAddress, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -217,7 +214,7 @@ public class App extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(ipAddress1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(langBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(save)
                 .addContainerGap(239, Short.MAX_VALUE))
@@ -225,7 +222,7 @@ public class App extends javax.swing.JFrame {
 
         ipAddress.getAccessibleContext().setAccessibleName("ipBox");
         save.getAccessibleContext().setAccessibleName("save");
-        ipAddress1.getAccessibleContext().setAccessibleName("LangBox");
+        langBox.getAccessibleContext().setAccessibleName("LangBox");
 
         jTabbedPane1.addTab(langValues.get("ConnectSettings"), jPanel2);
         jPanel2.getAccessibleContext().setAccessibleName("settings");
@@ -288,7 +285,6 @@ public class App extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public javax.swing.JButton conn;
     public javax.swing.JComboBox ipAddress;
-    public javax.swing.JComboBox ipAddress1;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
@@ -297,7 +293,8 @@ public class App extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     public javax.swing.JPanel jPanel2;
     private javax.swing.JTabbedPane jTabbedPane1;
-    public javax.swing.JFormattedTextField port;
+    private javax.swing.JComboBox langBox;
+    private javax.swing.JFormattedTextField port;
     private javax.swing.JButton save;
     // End of variables declaration//GEN-END:variables
 }
