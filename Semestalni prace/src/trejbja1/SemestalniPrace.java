@@ -4,13 +4,6 @@
  */
 package trejbja1;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
-import org.xml.sax.SAXException;
-
 /**
  *
  * @author Jan
@@ -24,7 +17,7 @@ public class SemestalniPrace {
         // TODO code application logic here
 
         App okno = new App();
-        okno.init();
+        //okno.init();
         
 /*      try {
         //test win cmd
