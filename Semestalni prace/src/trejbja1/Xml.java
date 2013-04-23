@@ -108,8 +108,11 @@ public class Xml {
             }
         }
         try {
-            return (String)getByKey("/localizableStrings/group[@id='"+group+"']/string[@id='"+string+"']/text[@lang='"+language+"']");
-            //return value;
+            String value=  (String)getByKey("/localizableStrings/group[@id='"+group+"']/string[@id='"+string+"']/text[@lang='"+language+"']");
+            if (value.equals("")) {
+                value=  (String)getByKey("/localizableStrings/group[@id='"+group+"']/string[@id='"+string+"']/text[@lang='en']");
+            }
+            return value;
         } catch (XPathExpressionException ex) {
             System.out.println("error load XML settings");
             try {
