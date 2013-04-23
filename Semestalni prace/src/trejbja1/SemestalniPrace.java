@@ -50,5 +50,8 @@ public class SemestalniPrace {
      * XML
      * http://examples.javacodegeeks.com/core-java/xml/xpath/find-elements-by-attributes-with-xpath/
      * 
+     * compass
+     * http://www.starcprsacramento.com/i//compass-rose.jpg
+     * 
      */
 }

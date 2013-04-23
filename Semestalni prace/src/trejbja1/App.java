@@ -4,9 +4,16 @@
  */
 package trejbja1;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
 import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
+import javax.swing.JPanel;
 
 /**
  *
@@ -16,6 +23,7 @@ public class App extends javax.swing.JFrame {
     private BridgeAppCode bridge;
     private DefaultComboBoxModel IPmodel = new javax.swing.DefaultComboBoxModel(new String[] {});
     private DefaultComboBoxModel LangModel = new javax.swing.DefaultComboBoxModel(new String[] {});
+    private ImageIcon iconCompass = new javax.swing.ImageIcon(getClass().getResource("/resources/compass.jpg"));
     private String sLastIp="";
     private String sPort="";
     private String sLang="";
@@ -25,6 +33,7 @@ public class App extends javax.swing.JFrame {
         setIcon();
         bridgeInit();
         initComponents();
+        compasAngle(0);
         setVisible(true);
     }
     public void setLangValues(Map<String, String> langValues) {
@@ -73,6 +82,35 @@ public class App extends javax.swing.JFrame {
         LangModel.removeAllElements();
         initComponents();
     }
+    public void compasAngle(float angle) {
+        ((Compass)jCompass).setAngle(angle);
+    }
+    class Compass extends JPanel {
+        private float angle=0;
+        public void setAngle(float angle) {
+            this.angle=angle;
+        }
+        @Override
+        public void paint(Graphics g) {
+            g.setColor(Color.white);
+            g.fillRect(0, 0, 140, 140);
+            
+            Image source = iconCompass.getImage();
+            int w = source.getWidth(null);
+            int h = source.getHeight(null);
+            
+            Graphics2D g2a = (Graphics2D)g;
+            
+            AffineTransform at = new AffineTransform();
+            at.translate(27, 75);
+            at.rotate(Math.toRadians(angle), w / 2, h / 2);
+            g2a.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2a.setTransform(at);
+            g2a.drawImage(source, 0, 0, this);
+            g2a.dispose();
+            g.drawImage(source, 0, 0, null);
+        }
+    }
 
   /**
    * This method is called from within the constructor to initialize the form.
@@ -88,6 +126,7 @@ public class App extends javax.swing.JFrame {
         conn = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        jCompass = new Compass();
         jPanel2 = new javax.swing.JPanel();
         ipAddress = new javax.swing.JComboBox();
         jLabel1 = new javax.swing.JLabel();
@@ -122,17 +161,31 @@ public class App extends javax.swing.JFrame {
             }
         });
 
+        javax.swing.GroupLayout jCompassLayout = new javax.swing.GroupLayout(jCompass);
+        jCompass.setLayout(jCompassLayout);
+        jCompassLayout.setHorizontalGroup(
+            jCompassLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 140, Short.MAX_VALUE)
+        );
+        jCompassLayout.setVerticalGroup(
+            jCompassLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 140, Short.MAX_VALUE)
+        );
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(conn)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton2)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jCompass, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(conn)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton2)))
                 .addContainerGap(415, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -143,7 +196,9 @@ public class App extends javax.swing.JFrame {
                     .addComponent(conn)
                     .addComponent(jButton1)
                     .addComponent(jButton2))
-                .addContainerGap(321, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jCompass, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(170, Short.MAX_VALUE))
         );
 
         conn.getAccessibleContext().setAccessibleName("conn");
@@ -287,6 +342,7 @@ public class App extends javax.swing.JFrame {
     public javax.swing.JComboBox ipAddress;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JPanel jCompass;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
