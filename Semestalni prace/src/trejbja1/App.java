@@ -28,12 +28,11 @@ public class App extends javax.swing.JFrame {
     private String sPort="";
     private String sLang="";
     private Map<String, String> langValues;
+    private float angleImg=0;
 
     public App() {
-        setIcon();
         bridgeInit();
         initComponents();
-        compasAngle(0);
         setVisible(true);
     }
     public void setLangValues(Map<String, String> langValues) {
@@ -72,10 +71,10 @@ public class App extends javax.swing.JFrame {
             langValues=bridge.getLangValues();
         }
     }
-    private void setIcon() {
+    private Image setIcon() {
         ImageIcon img = new ImageIcon(getClass().getResource("/resources/ship.png"));
 
-        this.setIconImage(img.getImage());
+        return img.getImage();
     }
     public void reInitComponents() {
         IPmodel.removeAllElements();
@@ -83,12 +82,15 @@ public class App extends javax.swing.JFrame {
         initComponents();
     }
     public void compasAngle(float angle) {
+        angleImg=angle;
         ((Compass)jCompass).setAngle(angle);
     }
     class Compass extends JPanel {
         private float angle=0;
+        
         public void setAngle(float angle) {
             this.angle=angle;
+            this.repaint();
         }
         @Override
         public void paint(Graphics g) {
@@ -98,17 +100,13 @@ public class App extends javax.swing.JFrame {
             Image source = iconCompass.getImage();
             int w = source.getWidth(null);
             int h = source.getHeight(null);
-            
             Graphics2D g2a = (Graphics2D)g;
-            
-            AffineTransform at = new AffineTransform();
-            at.translate(27, 75);
+            AffineTransform at = g2a.getTransform();
             at.rotate(Math.toRadians(angle), w / 2, h / 2);
             g2a.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2a.setTransform(at);
-            g2a.drawImage(source, 0, 0, this);
+            g2a.drawImage(source, 0, 0, null);
             g2a.dispose();
-            g.drawImage(source, 0, 0, null);
         }
     }
 
@@ -127,6 +125,7 @@ public class App extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jCompass = new Compass();
+        jButton3 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         ipAddress = new javax.swing.JComboBox();
         jLabel1 = new javax.swing.JLabel();
@@ -137,8 +136,17 @@ public class App extends javax.swing.JFrame {
         langBox = new javax.swing.JComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setIconImage(setIcon());
 
         jTabbedPane1.setName("LBoat"); // NOI18N
+
+        jPanel1.addInputMethodListener(new java.awt.event.InputMethodListener() {
+            public void caretPositionChanged(java.awt.event.InputMethodEvent evt) {
+                jPanel1CaretPositionChanged(evt);
+            }
+            public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt) {
+            }
+        });
 
         conn.setText(langValues.get("Connect"));
         conn.addActionListener(new java.awt.event.ActionListener() {
@@ -172,6 +180,13 @@ public class App extends javax.swing.JFrame {
             .addGap(0, 140, Short.MAX_VALUE)
         );
 
+        jButton3.setText("jButton3");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -185,8 +200,10 @@ public class App extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jButton1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButton2)))
-                .addContainerGap(415, Short.MAX_VALUE))
+                        .addComponent(jButton2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton3)))
+                .addContainerGap(332, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -195,7 +212,8 @@ public class App extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(conn)
                     .addComponent(jButton1)
-                    .addComponent(jButton2))
+                    .addComponent(jButton2)
+                    .addComponent(jButton3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jCompass, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(170, Short.MAX_VALUE))
@@ -319,6 +337,18 @@ public class App extends javax.swing.JFrame {
         // TODO add your handling code here:
         bridge.rCam();
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        angleImg+=10;
+        compasAngle(angleImg);
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jPanel1CaretPositionChanged(java.awt.event.InputMethodEvent evt) {//GEN-FIRST:event_jPanel1CaretPositionChanged
+        // TODO add your handling code here:
+        compasAngle(angleImg);
+        System.out.println("caretpos");
+    }//GEN-LAST:event_jPanel1CaretPositionChanged
   
 /*  public void redesign() {
     try {
@@ -342,6 +372,7 @@ public class App extends javax.swing.JFrame {
     public javax.swing.JComboBox ipAddress;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JPanel jCompass;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
