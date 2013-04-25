@@ -28,8 +28,9 @@ public class ProcessData implements Runnable {
             int znak=conn.read();
             if (znak!=-1) {
                 if (znak==(int)0x76) {
-                    message=Character.toString((char)znak);
+                    message="";
                 }
+                message+=Character.toString((char)znak);
                 checkRecievedData(message);
             }
             else {
