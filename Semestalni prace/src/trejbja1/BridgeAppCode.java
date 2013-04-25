@@ -103,29 +103,7 @@ public class BridgeAppCode {
         
         if (!app.getLang().equals(xmlLang.getLanguageValue("Lang", "LanguageName"))) {
             System.out.println("reInit");
-            
-            /*
-            app.setVisible(false);
-            xml=new Xml(configFile);
-            langValues = new HashMap<>();
-            
-
-            elementStat = new HashMap<>();
-            
-            app.repaint();
-            app.revalidate();
-            
-            initElementStat();
-            
-            loadConfig();
-            loadLanguageValues();
-            app.setLangValues(langValues);
-            
-            app.reInitComponents();
-            
-            
-            app.setVisible(true);
-            */
+         
             app.dispose();
             app=new App();
         }
@@ -191,6 +169,10 @@ public class BridgeAppCode {
         langValues.put("Connect", xmlLang.getLanguageValue("main", "Connect"));
         langValues.put("Connecting", xmlLang.getLanguageValue("main", "Connecting"));
         langValues.put("Disconnect", xmlLang.getLanguageValue("main", "Disconnect"));
+        
+        langValues.put("Rudder", xmlLang.getLanguageValue("main", "Rudder"));
+        langValues.put("Sail1", xmlLang.getLanguageValue("main", "Sail1"));
+        langValues.put("Sail2", xmlLang.getLanguageValue("main", "Sail2"));
         
         langValues.put("ConnectSettings", xmlLang.getLanguageValue("settings", "ConnectSettings"));
         langValues.put("IpAddress", xmlLang.getLanguageValue("settings", "IpAddress"));
