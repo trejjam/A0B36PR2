@@ -116,6 +116,9 @@ public class BridgeAppCode {
         System.out.println("rCam");
         conn.send(new String(new char[] {0x56, 0, 0x26, 0}));
     }
+    public void sendToMcu(char HA, char LA, char HD, char LD) { //send command to MCU
+        conn.send(new String(new char[] {0x56, 0x55, HA, LA, HD, LD}));
+    }
     private void loadConfig() {
         if (!xml.Load()) return;
         
