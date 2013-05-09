@@ -22,6 +22,8 @@ public class TcpIp {
     private String IP;
     private int port=0;
     private boolean TcpThread=false;
+    
+    private boolean echo=false;
 
     private Object lock = new Object();
     private Object lockSend = new Object();
@@ -38,6 +40,7 @@ public class TcpIp {
     private Socket socket = null;
     private BufferedOutputStream streamOut = null;
     private BufferedReader streamIn=null;
+    private InputStream inputStream=null;
 
     public TcpIp(BridgeAppCode bridge) {
         this.bridge=bridge;
@@ -130,6 +133,8 @@ public class TcpIp {
         public void run() {
             String message;
             int mChar;
+            byte[] inByte = new byte[ 2048 ];
+            int lengthInByte;
 
             try {
                 SocketAddress sAddr = new InetSocketAddress(IP, port);
@@ -156,7 +161,8 @@ public class TcpIp {
 
             try {
                 streamOut = new BufferedOutputStream(socket.getOutputStream());
-                streamIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                //streamIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                inputStream = socket.getInputStream();
             }
             catch (IOException ex) {
                 //chyba
@@ -173,30 +179,36 @@ public class TcpIp {
                     System.out.println("Disconnected");
                     break;
                 }
-                if (!streamIn.ready()) {
+                /*if (!streamIn.ready()) {
                   continue;
-                }
+                }*/
                 
                 message="";
-                while(streamIn.ready()) {
-                    mChar = streamIn.read();
-                    if ((mChar)==-1) {
+                if ((lengthInByte=inputStream.read(inByte))!=0) {
+                    if (lengthInByte==-1) {
                         System.out.println("Disconnected");
                         break; 
                     }
-                    message += (char)mChar;
-                  }
-                  System.out.print("In: \n" + message + " - ");
-                  for (int i=0; i<message.length(); i++) {
-                      System.out.print(Integer.toHexString(new Integer (message.charAt(i))) + ", ");
-                  }
-                  System.out.println("\n");
+                    
+                    for (int i=0; i<lengthInByte; i++) {
+                        if (echo) System.out.print((char)inByte[i]);
+                        message += (char)inByte[i];
+                    }                  
+                }
 
-                  synchronized (lock) {
-                      for (int i=0; i<message.length(); i++) {
-                          fifo.add(new Integer (message.charAt(i)));
-                      }
-                  }
+if (echo) {
+                System.out.print("\nIn: \n" + " - ");
+                for (int i=0; i<message.length(); i++) {
+                    //System.out.print(message.charAt(i) + ", ");
+                    System.out.print(Integer.toHexString(new Integer (message.charAt(i))) + ", ");
+                }
+                System.out.println("\n");
+}
+                synchronized (lock) {
+                    for (int i=0; i<message.length(); i++) {
+                        fifo.add(new Integer (message.charAt(i)));
+                    }
+                }
               }
               catch (SocketException ex) {
                   //nevypisování chyby při odpojení
