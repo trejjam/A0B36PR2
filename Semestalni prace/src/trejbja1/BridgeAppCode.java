@@ -156,6 +156,15 @@ public class BridgeAppCode {
         
         //load port          
         app.setPort(xml.getValue("Config", "Port"));
+        
+        String photos=xml.getValue("Config", "AutoPhotos");
+        if (photos.equals("True")) {
+            app.setAutoPhotos(true);
+        }
+        else {
+            app.setAutoPhotos(false);
+        }
+        app.setAutoPhotosTime(xml.getValue("Config", "AutoPhotosTime"));
     }
     private void initElementStat() {
         elementStat.put("conn", 0);
@@ -181,6 +190,8 @@ public class BridgeAppCode {
         langValues.put("WifiPassword", xmlLang.getLanguageValue("settings", "WifiPassword"));
         langValues.put("Language", xmlLang.getLanguageValue("settings", "Language"));
         langValues.put("Save", xmlLang.getLanguageValue("settings", "Save"));
+        langValues.put("AutoPhotos", xmlLang.getLanguageValue("settings", "AutoPhotos"));
+        langValues.put("AutoPhotosTime", xmlLang.getLanguageValue("settings", "AutoPhotosTime"));
         
         try {
             String langs = xmlLang.getByKey("/localizableStrings/group[@id='Lang']/string[@id='LanguageName']");

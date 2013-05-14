@@ -183,6 +183,14 @@ public class Xml {
         group.appendChild(createElement("text", "id", "NetworkPassword", getValue("Config", "NetworkPassword")));
         group.appendChild(createElement("text", "id", "PasswordHashCode", getValue("Config", "PasswordHashCode")));
         
+        if (bridge.getAppRef().getAutoPhotos()) {
+            group.appendChild(createElement("text", "id", "AutoPhotos", "True"));
+        }
+        else {
+            group.appendChild(createElement("text", "id", "AutoPhotos", "False"));
+        }
+        group.appendChild(createElement("text", "id", "AutoPhotosTime", bridge.getAppRef().getAutoPhotosTime()));
+        
         group.appendChild(createElement("text", "id", "Port", ""+bridge.getAppRef().getPort()));
         
         group.appendChild(createElement("text", "id", "LastIp", bridge.getAppRef().getIP()));

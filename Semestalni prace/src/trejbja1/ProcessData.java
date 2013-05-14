@@ -15,6 +15,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,7 +26,7 @@ import java.util.logging.Logger;
  */
 public class ProcessData implements Runnable {
     public enum timerDo {
-        cam
+        camNotResponse
     }
     public enum camDo {
         reset, takeFoto, stopTakePhoto, compressRatio, setJpegSize, readJpegSize, jpegData
@@ -40,6 +42,7 @@ public class ProcessData implements Runnable {
     private String message="";
     private int XH=0, XL=0, AH=0, AL=0;
     private boolean jpegReading=false;
+    private boolean gettingPhoto=false;
     
     private MakeFile makeImgFile=null;
     private Thread fileThread;
@@ -56,6 +59,19 @@ public class ProcessData implements Runnable {
         Thread tCamDeath = new Thread(camDeath);
         tCamDeath.setDaemon(true);
         tCamDeath.start();
+        
+        if (bridge.getAppRef().getAutoPhotos()) {
+            Timer connTimer = new Timer();
+            connTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    System.out.println("photo");
+                    sendToCam(ProcessData.camDo.takeFoto);
+                  
+                    this.cancel();
+                }
+            }, 0, 1000);
+        }
         
         while (process && conn!=null) {
             int znak=conn.read();
@@ -148,6 +164,19 @@ public class ProcessData implements Runnable {
                 
                 stopTakingPicture=true;
                 sendToCam(camDo.stopTakePhoto);
+                
+                if (bridge.getAppRef().getAutoPhotos()) {
+                    Timer connTimer = new Timer();
+                    connTimer.scheduleAtFixedRate(new TimerTask() {
+                        @Override
+                        public void run() {
+                            System.out.println("photo");
+                            sendToCam(ProcessData.camDo.takeFoto);
+
+                            this.cancel();
+                        }
+                    }, 0, Integer.parseInt(bridge.getAppRef().getAutoPhotosTime()));
+                }
                 //conn.send(sOutStopTakePicture); //ukončení přijímání .jpg
             }
             else {
@@ -176,12 +205,19 @@ public class ProcessData implements Runnable {
     public void sendToCam(camDo cDo, char[] adition) {
         if (cDo.equals(camDo.reset)) { 
             conn.send(new String(new char[] {0x56, 0, 0x26, 0})); //reset Cam
+            gettingPhoto=false;
+            jpegReading=false;
+            stopTakingPicture=false;
         }
         if (cDo.equals(camDo.takeFoto)) { 
-            conn.send(new String(new char[] {0x56, 0, 0x36, 0x01, 0})); //take photo
+            if (!gettingPhoto) {
+                gettingPhoto=true;
+                conn.send(new String(new char[] {0x56, 0, 0x36, 0x01, 0})); //take photo
+            }
         }
         if (cDo.equals(camDo.stopTakePhoto)) {
-            conn.send(sOutStopTakePicture); //change img size to 320x240
+            conn.send(sOutStopTakePicture);
+            gettingPhoto=false;
         }
         if (cDo.equals(camDo.compressRatio)) {
             conn.send(new String(new char[] {0x56, 0x00, 0x31, 0x05, 0x01, 0x01, 0x12, 0x04, 0xFF})); //change compress ratio
@@ -320,7 +356,7 @@ public class ProcessData implements Runnable {
             }
         }
         private void endTick() {
-            if (toDo.equals(timerDo.cam)) {
+            if (toDo.equals(timerDo.camNotResponse)) {
                 System.out.println("cam not response!");
             }
         }

@@ -29,10 +29,13 @@ public class App extends javax.swing.JFrame {
     private String sLang="";
     private Map<String, String> langValues;
     private float angleImg=0;
+    private boolean autoPhotos=false;
+    private String autoPhotosTime="1500";
 
     public App() {
         bridgeInit();
         initComponents();
+        autoPhotosCheckStateChanged(null); //zbarvení nepovolených komponent
         setVisible(true);
     }
     public void setLangValues(Map<String, String> langValues) {
@@ -64,6 +67,18 @@ public class App extends javax.swing.JFrame {
     }
     public String getLang() {
         return langBox.getSelectedItem().toString();
+    }
+    public void setAutoPhotos(boolean photos) {
+        this.autoPhotos=photos;
+    }
+    public boolean getAutoPhotos() {
+        return autoPhotosCheck.isSelected();
+    }
+    public void setAutoPhotosTime(String photos) {
+        this.autoPhotosTime=photos;
+    }
+    public String getAutoPhotosTime() {
+        return photosTime.getText();
     }
     private void bridgeInit() {
         if (bridge==null) {
@@ -140,6 +155,9 @@ public class App extends javax.swing.JFrame {
         save = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
         langBox = new javax.swing.JComboBox();
+        jLabel7 = new javax.swing.JLabel();
+        autoPhotosCheck = new javax.swing.JCheckBox();
+        photosTime = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setIconImage(setIcon());
@@ -309,6 +327,18 @@ public class App extends javax.swing.JFrame {
         langBox.setSelectedItem(sLang);
         langBox.setToolTipText("");
 
+        jLabel7.setText(langValues.get("AutoPhotosTime"));
+
+        autoPhotosCheck.setSelected(autoPhotos);
+        autoPhotosCheck.setText(langValues.get("AutoPhotos"));
+        autoPhotosCheck.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                autoPhotosCheckStateChanged(evt);
+            }
+        });
+
+        photosTime.setText(autoPhotosTime);
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -316,6 +346,7 @@ public class App extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(autoPhotosCheck)
                     .addComponent(save)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
@@ -329,7 +360,11 @@ public class App extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(port, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2))))
+                            .addComponent(jLabel2)))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(photosTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(280, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
@@ -349,12 +384,20 @@ public class App extends javax.swing.JFrame {
                     .addComponent(langBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(save)
-                .addContainerGap(239, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(autoPhotosCheck)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(photosTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(182, Short.MAX_VALUE))
         );
 
         ipAddress.getAccessibleContext().setAccessibleName("ipBox");
         save.getAccessibleContext().setAccessibleName("save");
         langBox.getAccessibleContext().setAccessibleName("LangBox");
+        autoPhotosCheck.getAccessibleContext().setAccessibleName("");
+        autoPhotosCheck.getAccessibleContext().setAccessibleDescription("");
 
         jTabbedPane1.addTab(langValues.get("ConnectSettings"), jPanel2);
         jPanel2.getAccessibleContext().setAccessibleName("settings");
@@ -401,6 +444,18 @@ public class App extends javax.swing.JFrame {
         // TODO add your handling code here:
         compasAngle(angleImg+10);
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void autoPhotosCheckStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_autoPhotosCheckStateChanged
+        if (autoPhotosCheck.isSelected()) {
+            jLabel7.setEnabled(true);
+            photosTime.setEnabled(true);
+        }
+        else {
+            jLabel7.setEnabled(false);
+            photosTime.setEnabled(false);
+        }
+        // TODO add your handling code here:
+    }//GEN-LAST:event_autoPhotosCheckStateChanged
   
 /*  public void redesign() {
     try {
@@ -420,6 +475,7 @@ public class App extends javax.swing.JFrame {
   }*/
   
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JCheckBox autoPhotosCheck;
     public javax.swing.JButton conn;
     public javax.swing.JComboBox ipAddress;
     private javax.swing.JButton jButton1;
@@ -432,6 +488,7 @@ public class App extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     public javax.swing.JPanel jPanel2;
     private javax.swing.JSlider jRudder;
@@ -439,6 +496,7 @@ public class App extends javax.swing.JFrame {
     private javax.swing.JSlider jSail2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JComboBox langBox;
+    private javax.swing.JTextField photosTime;
     private javax.swing.JFormattedTextField port;
     private javax.swing.JButton save;
     // End of variables declaration//GEN-END:variables
