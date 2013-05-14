@@ -171,7 +171,7 @@ public class TcpIp {
 
             startSendThread();
 
-            send(new String(new char[] {0x56, 0, 0x26, 0})); //reset Cam
+            bridge.getProcessData().sendToCam(ProcessData.camDo.reset); //reset Cam
 
             while(TcpThread) {
             try {

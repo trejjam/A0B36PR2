@@ -4,7 +4,6 @@
  */
 package trejbja1;
 
-import java.awt.ComponentOrientation;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +20,7 @@ import javax.xml.xpath.XPathExpressionException;
 public class BridgeAppCode {
     private TcpIp conn = null;
     private App app;
+    private ProcessData processData=null;
     private String configFile="config.sys";
     private int connDelay;
     private Timer connTimer=null;
@@ -110,14 +110,11 @@ public class BridgeAppCode {
     }
     public void getPhoto() {
         System.out.println("photo");
-        conn.send(new String(new char[] {0x56, 0, 0x36, 0x01, 0}));
+        processData.sendToCam(ProcessData.camDo.takeFoto);
     }
     public void rCam() {
         System.out.println("rCam");
-        conn.send(new String(new char[] {0x56, 0, 0x26, 0}));
-    }
-    public void sendToMcu(char HA, char LA, char HD, char LD) { //send command to MCU
-        conn.send(new String(new char[] {0x56, 0x55, HA, LA, HD, LD}));
+        processData.sendToCam(ProcessData.camDo.reset); //reset cam
     }
     private void loadConfig() {
         if (!xml.Load()) return;
@@ -201,9 +198,12 @@ public class BridgeAppCode {
         return langValues;
     }
     public void initProcessDataThread() {
-        Thread processDataThred=new Thread(new ProcessData(this));
+        Thread processDataThred=new Thread(processData= new ProcessData(this));
         processDataThred.setDaemon(true);
 
         processDataThred.start();
+    }
+    public ProcessData getProcessData() {
+        return processData;
     }
 }
