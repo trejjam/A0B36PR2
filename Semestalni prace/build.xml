@@ -71,4 +71,8 @@
     nbproject/build-impl.xml file. 
 
     -->
+    <target name="-post-jar"> 
+        <copy file="config.sys" flatten="true" todir="${dist.dir}" /> 
+        <copy file="language.xml" flatten="true" todir="${dist.dir}" />
+    </target> 
 </project>
