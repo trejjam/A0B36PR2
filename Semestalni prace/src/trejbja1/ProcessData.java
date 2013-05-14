@@ -32,7 +32,7 @@ public class ProcessData implements Runnable {
         reset, takeFoto, stopTakePhoto, compressRatio, setJpegSize, readJpegSize, jpegData
     }
     public enum mcuDo {
-        reset
+        reset, startListen, stopListen
     }
     
     private TcpIp conn;
@@ -102,9 +102,6 @@ public class ProcessData implements Runnable {
     }
     
     private final String sCamInit = new String(new char[]           {0x49, 0x6E, 0x69, 0x74, 0x20, 0x65, 0x6E, 0x61, 0x64, 0x0D, 0x0A});
-    private final String sMcuCommandsStart = new String(new char[]  {0x76, 0x01, 0x01, 0x01});
-    private final String sMcuCommand = new String(new char[]        {0x76, 0x75}); //+4 Byte messgae
-    private final String sMcuCommandsStop = new String(new char[]   {0x76, 0x02, 0x02, 0x02});
     private final String sTakePicture = new String(new char[]       {0x76, 0x00, 0x36, 0x00, 0x00});
     private final String sOutStopTakePicture = new String(new char[]{0x56, 0x00, 0x36, 0x01, 0x03});
     private final String sJpegSize = new String(new char[]          {0x76, 0x00, 0x34, 0x00, 0x04, 0x00, 0x00});
@@ -113,9 +110,18 @@ public class ProcessData implements Runnable {
     private boolean stopTakingPicture=false;
     private boolean compresRatio=true;
     
+    private final String sMcuCommandsStart = new String(new char[]  {0x76, 0x01, 0x01, 0x01});
+    private final String sMcuCommand = new String(new char[]        {0x76, 0x75}); //+4 Byte message
+    private final String sMcuCommandsStop = new String(new char[]   {0x76, 0x02, 0x02, 0x02});
+    private boolean mcuListen = false;
+    
     private void checkRecievedData(String message) { //process recieved data
+        // ******** CAM block ********
         if (message.length()>10 && message.substring(message.length()-11, message.length()).equals(sCamInit)) {
             System.out.println("initComplete");
+            
+            camDeath.endTick();
+            
             compresRatio=true;
             
             sendToCam(camDo.compressRatio); //change compress ratio
@@ -125,6 +131,8 @@ public class ProcessData implements Runnable {
                 System.out.println("changed compress ratio");
                 compresRatio=false;
                 
+                camDeath.endTick();
+                
                 sendToCam(camDo.setJpegSize); //change img size to 320x240
             }
             else {
@@ -133,11 +141,17 @@ public class ProcessData implements Runnable {
         }
         if (message.equals(sTakePicture)) { //picture taked
             System.out.println("picture taked");
+            
+            camDeath.endTick();
+            
             if (!stopTakingPicture) sendToCam(camDo.readJpegSize); //read JPEG size
             stopTakingPicture=false;
         }
         if (message.length()>2 && message.substring(0, message.length()-2).equals(sJpegSize)) { //recieve JPEG size
             System.out.println("get Jpeg size");
+           
+            camDeath.endTick();
+            
             XH=(int)message.charAt(7);
             XL=(int)message.charAt(8);
             jpegReading=false;
@@ -156,6 +170,9 @@ public class ProcessData implements Runnable {
             //76 00 34 00 04 00 00 XH XL 
         }
         if (message.equals(sJpegFileContent)) { //picture taked
+            
+            camDeath.endTick();
+            
             if (jpegReading) {
                 jpegReading=false;
                 System.out.println("picture file content stop");
@@ -189,15 +206,20 @@ public class ProcessData implements Runnable {
                 fileThread.start();
             }
         }
+        // ******** end CAM block ********
+        // ******** MCU block ********
         if (message.equals(sMcuCommandsStart)) { //switch MCU to listen mode
-            System.out.println("MCU listen");            
+            System.out.println("MCU listen");
+            mcuListen=true;
         }
         if (message.length()>4 && message.substring(0, message.length()-4).equals(sMcuCommand)) { //recieve MCU message
             System.out.println("MCU command");  
         }
         if (message.equals(sMcuCommandsStop)) { //switch off MCU listen mode
-            System.out.println("MCU not listen");            
+            System.out.println("MCU not listen"); 
+            mcuListen=false;
         }
+        // ******** end MCU block ********
     }
     public void sendToCam(camDo cDo) {
         sendToCam(cDo, null);
@@ -231,10 +253,22 @@ public class ProcessData implements Runnable {
         if (cDo.equals(camDo.jpegData)) {
             conn.send(new String(new char[] {0x56, 0x00, 0x32, 0x0C, 0x00, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (char)XH, (char)XL, 0x00, 0x0A})); //read JPEG data
         }
+        
+        camDeath.startTick(timerDo.camNotResponse);
+    }
+    public void sendToMcu(mcuDo mDo) {
+        sendToMcu(mDo, null);
     }
     public void sendToMcu(mcuDo mDo, char[] adition) {
         if (mDo.equals(mcuDo.reset)) {
             sendToMcu((char)0, (char)0, (char)0, (char)0);
+        }
+        if (mDo.equals(mcuDo.startListen)) {
+            mcuListen=true;
+            sendToMcu((char)1, (char)1, (char)1, (char)1);
+        }
+        if (mDo.equals(mcuDo.stopListen)) {
+            sendToMcu((char)1, (char)1, (char)1, (char)2);
         }
     }
     public void sendToMcu(char HA, char LA, char HD, char LD) { //send command to MCU
@@ -358,6 +392,14 @@ public class ProcessData implements Runnable {
         private void endTick() {
             if (toDo.equals(timerDo.camNotResponse)) {
                 System.out.println("cam not response!");
+                if (mcuListen) {
+                    sendToMcu(mcuDo.stopListen);
+                    sendToCam(camDo.reset);
+                    sendToMcu(mcuDo.startListen);
+                }
+                else {
+                    sendToCam(camDo.reset);
+                }
             }
         }
     }

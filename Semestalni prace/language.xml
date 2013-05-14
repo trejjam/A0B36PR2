@@ -86,5 +86,13 @@
       <text lang="cz">Zavřít</text>
       <text lang="en">Close</text>
     </string>
+    <string id="AutoPhotos">
+      <text lang="cz">Automaticky stahovat obrázky</text>
+      <text lang="en">Automatic get photos</text>
+    </string>
+    <string id="AutoPhotosTime">
+      <text lang="cz">Čas mezi pořizovanými omrázky</text>
+      <text lang="en">Time between photos</text>
+    </string>
   </group>
 </localizableStrings> 
