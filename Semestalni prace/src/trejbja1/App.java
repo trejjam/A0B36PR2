@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package trejbja1;
 
 import java.awt.Color;
@@ -21,7 +17,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 /**
- *
+ * Vytvoření a správa okna
  * @author Jan
  */
 public class App extends javax.swing.JFrame {
@@ -37,54 +33,113 @@ public class App extends javax.swing.JFrame {
     private boolean autoPhotos=false;
     private String autoPhotosTime="1500";
 
+    /**
+     * Inicializace {@link BridgeAppCode}
+     * Inicializace komponent
+     * Zobrazení okna
+     */
     public App() {
         bridgeInit();
         initComponents();
         autoPhotosCheckStateChanged(null); //zbarvení nepovolených komponent
         setVisible(true);
     }
+    /**
+     * Nastavení jazyků
+     * @param langValues 
+     */
     public void setLangValues(Map<String, String> langValues) {
         this.langValues = langValues;
     }
+    /**
+     * Nastavení poslední IP do GUI
+     * @param sLastIp 
+     */
     public void setLastIp(String sLastIp) {
         this.sLastIp=sLastIp;
     }
+    /**
+     * Nastavení portu do GUI
+     * @param sPort 
+     */
     public void setPort(String sPort) {
         this.sPort=sPort;
     }
+    /**
+     * Nastavení uloženého jazyku do GUI
+     * @param sLang 
+     */
     public void setLang(String sLang) {
         this.sLang=sLang;
     }
-    public void setPort(DefaultComboBoxModel IPmodel) {
+    /**
+     * 
+     * @param IPmodel 
+     */
+    public void setIPmodul(DefaultComboBoxModel IPmodel) {
         this.IPmodel=IPmodel;
     }
+    /**
+     * Získání reference na combo box model s IP adresami 
+     * @return IPComboBoxModel
+     */
     public DefaultComboBoxModel getIpModul() {
         return IPmodel;
     }
+    /**
+     * Získání reference na combo box model s jazyky
+     * @return LanguageComboBoxModel
+     */
     public DefaultComboBoxModel getLangModul() {
         return LangModel;
     }
+    /**
+     * Získání vybrané IP adresy
+     */
     public String getIP() {
         return ipAddress.getSelectedItem().toString();
     }
+    /**
+     * Získání vybraného portu
+     */
     public int getPort() {
         return Integer.parseInt(port.getText());
     }
+    /**
+     * Získání vybraného jazyka
+     */
     public String getLang() {
         return langBox.getSelectedItem().toString();
     }
+    /**
+     * Nastavení automatického stahování fotek před zobrazením GUI
+     * @param photos 
+     */
     public void setAutoPhotos(boolean photos) {
         this.autoPhotos=photos;
     }
+    /**
+     * Zjištění zda mají být automaticky stahovány fotky
+     */
     public boolean getAutoPhotos() {
         return autoPhotosCheck.isSelected();
     }
+    /**
+     * Nastavení intervalu pro automatické stahování před zobrazením GUI
+     * @param photos 
+     */
     public void setAutoPhotosTime(String photos) {
         this.autoPhotosTime=photos;
     }
+    /**
+     * Zjištění intervalu pro automatické stahování
+     */
     public String getAutoPhotosTime() {
         return photosTime.getText();
     }
+    /**
+     * Vytvoření mostu mezi třídami
+     */
     private void bridgeInit() {
         if (bridge==null) {
             bridge = new BridgeAppCode(this);
@@ -96,24 +151,46 @@ public class App extends javax.swing.JFrame {
 
         return img.getImage();
     }
+    /**
+     * Nastavení textu tlačítka vyvolávajícího změnu spojení
+     * @param text 
+     */
     public void setTextConn(String text) {
         conn.setText(text);
     }
+    /**
+     * Znovu načtení komponent GUI
+     */
     public void reInitComponents() {
         IPmodel.removeAllElements();
         LangModel.removeAllElements();
         initComponents();
     }
+    /**
+     * Nastavení úhlu kompasu
+     * @param angle 
+     */
     public void compasAngle(float angle) {
         angleImg=angle;
         ((Compass)jCompass).setAngle(angle);
     }
+    /**
+     * Nastavení jména souboru fotky pro zobrazení v GUI
+     * @param file 
+     */
     public void setPhoto(String file) {
         ((Photo)jImage).setImage(file);
     }
-    class Compass extends JPanel {
+    /**
+     * Třída obsluhující natáčení kompasové růžice
+     */
+    private class Compass extends JPanel {
         private float angle=0;
         
+        /**
+         * Nastavení úhlu natočení kompasové růžice
+         * @param angle 
+         */
         public void setAngle(float angle) {
             this.angle=angle;
             this.repaint();
@@ -135,11 +212,18 @@ public class App extends javax.swing.JFrame {
             g2a.dispose();
         }
     }
+    /**
+     * Třída obsluhující zobrazování Fotografií
+     */
     class Photo extends JPanel {
         private ImageIcon FNF = new javax.swing.ImageIcon(getClass().getResource("/resources/FNF.png"));
         private ImageIcon FNT = new javax.swing.ImageIcon(getClass().getResource("/resources/FNT.png"));
         private Image img = FNT.getImage();
         
+        /**
+         * Nastavení jména fotografie pro zobrazení
+         * @param image 
+         */
         public void setImage(String image) {
             try {
                 img = ImageIO.read(new File("photos/"+image));
