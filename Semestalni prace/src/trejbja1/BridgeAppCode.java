@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 import javax.xml.xpath.XPathExpressionException;
 
 /**
- *
+ * Třída umožňující komunikaci mezi jednotlivými třídami
  * @author Jan
  */
 public class BridgeAppCode {
@@ -33,6 +33,10 @@ public class BridgeAppCode {
     private Xml xml;
     private Xml xmlLang;
 
+    /**
+     * Vytvoření mostu s referencí na GUI
+     * @param app 
+     */
     public BridgeAppCode(App app) { //init
         System.out.println("create bridge");
         
@@ -47,15 +51,30 @@ public class BridgeAppCode {
         loadConfig();
         loadLanguageValues();
     }
+    /**
+     * Reference na GUI
+     * @return 
+     */
     public App getAppRef() {
         return app;
     }
+    /**
+     * Reference na komunikační třídu
+     * @return 
+     */
     public TcpIp getTcpIpRef() {
         return conn;
     }
+    /**
+     * Reference na jazykový XML soubor
+     * @return 
+     */
     public Xml getXmlLang() {
         return xmlLang;
     }
+    /**
+     * Metoda pro obsluhu tlačítka obsluhujícího připojení
+     */
     public void connButton() {
         if (conn==null || elementStat.get("conn")==0) {
             conn=new TcpIp(app.getIP(), app.getPort(), this);
@@ -89,14 +108,26 @@ public class BridgeAppCode {
         }
         System.out.println("connButton");
     }
+    /**
+     * Zastavení časovače deinkremetujícího zbývající čas pro připojení
+     */
     public void stopConnTimer() {
         if (connTimer==null) return;
         connTimer.cancel();
     }
+    /**
+     * Nastavení textu tlačítka obsluhujícího připojení
+     * změna jeho číselného stavů, z důvodu multijazykové podpory
+     * @param text
+     * @param statutConn 
+     */
     synchronized public void setConnButon(String text, int statutConn) {
         app.setTextConn(text);
         elementStat.put("conn", statutConn);
     }
+    /**
+     * Uložení configurace do XML souboru
+     */
     public void saveSettings() {
         System.out.println("save");
         xml.saveConfigXml(this);
@@ -108,14 +139,23 @@ public class BridgeAppCode {
             app=new App();
         }
     }
+    /**
+     * Požadavek na stáhnutí fotografie
+     */
     public void getPhoto() {
         System.out.println("photo");
         processData.sendToCam(ProcessData.camDo.takeFoto);
     }
+    /**
+     * Reset kamery
+     */
     public void rCam() {
         System.out.println("rCam");
         processData.sendToCam(ProcessData.camDo.reset); //reset cam
     }
+    /**
+     * Načtení konfigurace z XML souboru
+     */
     private void loadConfig() {
         if (!xml.Load()) return;
         
@@ -166,9 +206,15 @@ public class BridgeAppCode {
         }
         app.setAutoPhotosTime(xml.getValue("Config", "AutoPhotosTime"));
     }
+    /**
+     * Inicializace statutu složitých elementů
+     */
     private void initElementStat() {
         elementStat.put("conn", 0);
     }
+    /**
+     * Načtení jazykových hodnot
+     */
     private void loadLanguageValues() {
         if (xmlLang==null) return;
         
@@ -207,9 +253,17 @@ public class BridgeAppCode {
             Logger.getLogger(BridgeAppCode.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    /**
+     * Získání reference na mapu jazykových hodnot
+     * @return 
+     */
     public Map<String, String> getLangValues() {
         return langValues;
     }
+    /**
+     * Inicializace objektu zpracovávajícího přijatá data
+     * řídícího automatické reakce na ně
+     */
     public void initProcessDataThread() {
         Thread processDataThread=new Thread(processData= new ProcessData(this));
         processDataThread.setName("ProcessData");
@@ -217,6 +271,10 @@ public class BridgeAppCode {
 
         processDataThread.start();
     }
+    /**
+     * Získání reference na objekt zpracovávající data
+     * @return 
+     */
     public ProcessData getProcessData() {
         return processData;
     }
