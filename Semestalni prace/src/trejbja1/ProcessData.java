@@ -4,9 +4,7 @@
  */
 package trejbja1;
 
-import java.awt.Desktop;
 import java.io.BufferedOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -15,13 +13,11 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * Třída starající se o zpracování přijatých dat
  * @author Jan
  */
 public class ProcessData implements Runnable {
@@ -50,6 +46,10 @@ public class ProcessData implements Runnable {
     private DeathTimer camDeath;
     private boolean getPhotoTimer=false;
     
+    /**
+     * Konstruktor se zpětným parametrem do BridgeAppCode
+     * @param bridge 
+     */
     ProcessData(BridgeAppCode bridge) {
         this.bridge = bridge;
         
@@ -150,6 +150,10 @@ public class ProcessData implements Runnable {
     private final String sMcuCommandsStop = new String(new char[]   {0x76, 0x75, 0x76, 0x01, 0x01, 0x02});
     private boolean mcuListen = false;
     
+    /**
+     * Dělení přijatých dat
+     * @param message 
+     */
     private void checkRecievedData(String message) { //process recieved data
         // ******** CAM block ********
         if (message.length()>10 && message.substring(message.length()-11, message.length()).equals(sCamInit)) {
@@ -258,12 +262,26 @@ public class ProcessData implements Runnable {
         
         // ******** end MCU block ********
     }
+    /**
+     * Přijmutí zprávy z MCU
+     * @param message 
+     */
     private void messageToMcu(String message) {
         System.out.println("message - " + message);
     }
+    /**
+     * Odeslání příkazu do Kamery
+     * @param cDo 
+     */
     public void sendToCam(camDo cDo) {
         sendToCam(cDo, null);
     }
+    /**
+     * Odeslání příkazu s doplňujícími parametry do kamery
+     * (doplňující parametry prozatím nepoužity)
+     * @param cDo
+     * @param adition 
+     */
     public void sendToCam(camDo cDo, char[] adition) {
         if (conn!=null) {
             if (cDo.equals(camDo.reset)) { 
@@ -301,9 +319,19 @@ public class ProcessData implements Runnable {
             System.out.println("conn not defined");
         }
     }
+    /**
+     * Odeslání dat do MCU
+     * @param mDo 
+     */
     public void sendToMcu(mcuDo mDo) {
         sendToMcu(mDo, null);
     }
+    /**
+     * Odeslání dat s rozšiřujícími parametry
+     * Serva, parametr 0: procentuelní výchylka
+     * @param mDo
+     * @param adition 
+     */
     public void sendToMcu(mcuDo mDo, char[] adition) {
         if (mDo.equals(mcuDo.reset)) {
             sendToMcu((char)0, (char)0, (char)0);
@@ -346,10 +374,20 @@ public class ProcessData implements Runnable {
             }
         }
     }
+    /**
+     * Odeslání příkazu do MCU bez režie
+     * @param A
+     * @param HD
+     * @param LD 
+     */
     public void sendToMcu(char A, char HD, char LD) { //send command to MCU
         System.out.println(A+"-"+HD+"-"+LD);
         conn.send(new String(new char[] {0x76, 0x75, A, HD, LD}));
     }
+    /**
+     * Spuštění časovače pro automatizovaný příjem fotografie (vždy běží pouze jednou)
+     * @param name 
+     */
     private synchronized void startTimer(String name) {
         if (!getPhotoTimer && bridge.getAppRef().getAutoPhotos()) {
             getPhotoTimer=true;
@@ -374,6 +412,10 @@ public class ProcessData implements Runnable {
         }
     }
     
+    /**
+     * Třída vytvářející soubor s fotografií
+     * po uzavření souboru fotografií zobrazí v GUI
+     */
     private class MakeFile implements Runnable {
         private OutputStream output = null;
         private String file="";
@@ -385,23 +427,41 @@ public class ProcessData implements Runnable {
         
         private Queue<Character> fifo = null;
         
+        /**
+         * Konstruktor s generovaným názvem souboru
+         */
         public MakeFile() {
             imgName="camImg_"+new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())+".jpg";
             this.file = "photos/"+imgName;
             fifo = new LinkedList<>();
         }
+        /**
+         * Konstruktor se zadaným názvem názvem souboru
+         * @param file 
+         */
         public MakeFile(String file) {
             this();
             this.file=file;
         }
+        /**
+         * Zápis dat do souboru
+         * @param add 
+         */
         public void write(char add) {
             synchronized(fifoLock) {
                 fifo.add(add);
             }
         }
+        /**
+         * Požadavek na zavření souboru
+         */
         public void close() {
             close=true;
         }
+        /**
+         * Skutečné zavření souboru po zapsání všech dat z bufferu
+         * @param x 
+         */
         private void close(boolean x) {
             try {                
                 output.close();
@@ -422,9 +482,17 @@ public class ProcessData implements Runnable {
             
             startTimer("getNewImage");
         }
+        /**
+         * Ověření zavřeného souboru
+         * @return 
+         */
         public boolean isClosed() {
             return closed;
         }
+        /**
+         * Získání jména souboru
+         * @return 
+         */
         public String getFile() {
             return file;
         }
@@ -451,6 +519,9 @@ public class ProcessData implements Runnable {
                 }
             }
         }
+        /**
+         * Zápis dat z bufferu do souboru
+         */
         private void writeByte() {
             synchronized(fifoLock) {
                 if (!closed && !fifo.isEmpty()) {
@@ -464,18 +535,32 @@ public class ProcessData implements Runnable {
             }
         }
     }
+    /**
+     * Třída hlídající čas pro odpověd od kamery,
+     * podle zadaného vstupního příkazu provede příslušnou akci
+     */
     private class DeathTimer implements Runnable {
         private int delay;
         private boolean tick=false;
         private timerDo toDo=timerDo.nothing;
         
+        /**
+         * Vytvoření objektu se zadaným časem pro spuštní automatizované akce
+         * @param delay 
+         */
         public DeathTimer(int delay) {
             this.delay=delay;
         }
+        /*
+         * Spuštění časovače s nastavením akce po vypršení limitu
+         */
         public void startTick(timerDo toDo) {
             this.toDo=toDo;
             tick=true;
         }
+        /**
+         * Zastavení časovače
+         */
         public void killTick() {
             tick=false;
             Thread.interrupted();

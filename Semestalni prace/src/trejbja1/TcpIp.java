@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 /**
- *
+ * Třída pro komunikaci s hardwarem
  * @author Jan
  */
 public class TcpIp {
@@ -42,6 +42,11 @@ public class TcpIp {
     private BufferedReader streamIn=null;
     private InputStream inputStream=null;
 
+    /**
+     * Konstruktor třídy se zpětnou referencí do BridgeAppCode
+     * Vytvoření objektu bez znalosti IP adresy
+     * @param bridge 
+     */
     public TcpIp(BridgeAppCode bridge) {
         this.bridge=bridge;
         synchronized (lock) {
@@ -51,9 +56,22 @@ public class TcpIp {
             fifoSend = new LinkedList<>();
         }
     }
+    /**
+     * Konstruktor třídy se zpětnou referencí do BridgeAppCode
+     * Vytvoření objektu se znalostí IP adresy a automatickým doplněním portu 5003
+     * @param IP
+     * @param bridge 
+     */
     public TcpIp(String IP, BridgeAppCode bridge) {
       this(IP, 5003, bridge);    
     }
+    /**
+     * Konstruktor třídy se zpětnou referencí do BridgeAppCode
+     * Vytvoření objektu se znalostí IP adresy a portu
+     * @param IP
+     * @param port
+     * @param bridge 
+     */
     public TcpIp(String IP, int port, BridgeAppCode bridge) {    
       this(bridge);
 
@@ -62,12 +80,27 @@ public class TcpIp {
 
       conn();
     }
+    /**
+     * Vytvoření připojení na uloženou adresu
+     * @return 
+     */
     public final boolean conn() {
       return conn(IP, port);
     }
+    /**
+     * Vytvoření připojení na nově IP adresu
+     * @param IP
+     * @return 
+     */
     public boolean conn(String IP) {
       return conn(IP, port);
     }
+    /**
+     * Vytvoření připojení na nově zadanou IP adresu a port
+     * @param IP
+     * @param port
+     * @return 
+     */
     public boolean conn(String IP, int port) {
       if ("".equals(IP) || port==0) {
         return false;
@@ -83,6 +116,9 @@ public class TcpIp {
 
       return true;
     }
+    /**
+     * Zrušení připojení
+     */
     public void close() {
       TcpThread=false;
         try {
@@ -92,6 +128,10 @@ public class TcpIp {
         }
       tcpThread.interrupt();
     }
+    /**
+     * Přečtšní přijatých hodnot
+     * @return 
+     */
     public int read() {
       synchronized (lock) {
         if (!fifo.isEmpty()) {
@@ -100,6 +140,11 @@ public class TcpIp {
       }
       return -1;
     }
+    /**
+     * Přidání dat k odeslání
+     * @param data
+     * @return 
+     */
     public boolean send(String data) {
       if (isConnected()) {
         synchronized (lockSend) {
@@ -120,12 +165,24 @@ public class TcpIp {
       }
       return true;
     }
+    /**
+     * Ověření navázání socketu na cílové zařízení
+     * @return 
+     */
     public boolean isConnected() {
       return socket.isConnected();
     }
+    /**
+     * Zjištění povoleného času pro připojení
+     * @return 
+     */
     public int getConDelay() {
         return conDelay;
     }
+    /**
+     * Třída pro vytvoření streamů, odesílacího vlákna
+     * Třída starající se o přijímání dat
+     */
     private class TcpThread implements Runnable {
         private String IP;
         private int port;
@@ -138,7 +195,6 @@ public class TcpIp {
         @Override
         public void run() {
             String message;
-            int mChar;
             byte[] inByte = new byte[ 2048 ];
             int lengthInByte;
 
@@ -261,6 +317,9 @@ if (echo) {
         tcpThreadSend.start();
       }
     }
+    /**
+     * Třída starající se o odesílání dat
+     */
     private class TcpThreadSend implements Runnable {
     @Override
         public void run() {
