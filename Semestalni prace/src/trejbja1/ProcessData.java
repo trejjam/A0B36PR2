@@ -26,13 +26,13 @@ import java.util.logging.Logger;
  */
 public class ProcessData implements Runnable {
     public enum timerDo {
-        camNotResponse
+        nothing, camNotResponse
     }
     public enum camDo {
         reset, takeFoto, stopTakePhoto, compressRatio, setJpegSize, readJpegSize, jpegData
     }
     public enum mcuDo {
-        reset, startListen, stopListen
+        reset, startListen, stopListen, servo1, servo2, servo3
     }
     
     private TcpIp conn;
@@ -48,30 +48,26 @@ public class ProcessData implements Runnable {
     private Thread fileThread;
     
     private DeathTimer camDeath;
+    private boolean getPhotoTimer=false;
     
     ProcessData(BridgeAppCode bridge) {
         this.bridge = bridge;
+        
         conn = bridge.getTcpIpRef();
-    }
-    @Override
-    public void run() {
+        
         camDeath=new DeathTimer(5000);
         Thread tCamDeath = new Thread(camDeath);
+        tCamDeath.setName("camDeathThread");
         tCamDeath.setDaemon(true);
         tCamDeath.start();
+    }
+    @Override
+    public void run() {    
+        startTimer("onStartPhotoTimer");
         
-        if (bridge.getAppRef().getAutoPhotos()) {
-            Timer connTimer = new Timer();
-            connTimer.scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-                    System.out.println("photo");
-                    sendToCam(ProcessData.camDo.takeFoto);
-                  
-                    this.cancel();
-                }
-            }, 0, 1000);
-        }
+        char mcuMessage[] = new char[10];
+        mcuMessage[0]=0;
+        int mcuI=0;
         
         while (process && conn!=null) {
             int znak=conn.read();
@@ -79,8 +75,46 @@ public class ProcessData implements Runnable {
                 if (jpegReading) {
                     //jpegData+=(char)znak;
                     
-                    if (makeImgFile!=null) {
-                        makeImgFile.write((char)znak);
+                    if (znak==0x76) {
+                        mcuMessage[0]=(char)znak;
+                        mcuMessage[1]=0;
+                        mcuI=0;
+                    }
+                    else if (mcuI==0 && mcuMessage[0]==0x76 && mcuMessage[1]==0) {
+                        mcuMessage[++mcuI]=(char)znak;
+                        if (mcuMessage[1]!=0x75) {
+                            if (makeImgFile!=null) {
+                                makeImgFile.write(mcuMessage[0]);
+                                makeImgFile.write((char)znak);
+                            }
+                            mcuMessage[0]=0;
+                        }
+                        mcuMessage[2]=0;
+                    }
+                    else if (mcuI==1 && mcuMessage[0]==0x76 && mcuMessage[1]==0x75 && mcuMessage[2]==0) {
+                        mcuMessage[++mcuI]=(char)znak;
+                        if (mcuMessage[2]!=0x76) {
+                            if (makeImgFile!=null) {
+                                makeImgFile.write(mcuMessage[0]);
+                                makeImgFile.write(mcuMessage[1]);
+                                makeImgFile.write((char)znak);
+                            }
+                            mcuMessage[0]=0;
+                        }
+                    }
+                    else if (mcuMessage[0]==0x76 && mcuMessage[1]==0x75 && mcuMessage[2]==0x76) {
+                        mcuMessage[++mcuI]=(char)znak;
+                        if (mcuI==5) {
+                            System.out.println("MCU comand in Photo!");
+                            //command from MCU
+                            mcuMessage[0]=0;
+                            messageToMcu(new String(new char[] {mcuMessage[3], mcuMessage[4], mcuMessage[5]}));
+                        }
+                    }
+                    else {
+                        if (makeImgFile!=null) {
+                            makeImgFile.write((char)znak);
+                        }
                     }
                 }
                 if (znak==(int)0x76) {
@@ -107,12 +141,13 @@ public class ProcessData implements Runnable {
     private final String sJpegSize = new String(new char[]          {0x76, 0x00, 0x34, 0x00, 0x04, 0x00, 0x00});
     private final String sJpegFileContent = new String(new char[]   {0x76, 0x00, 0x32, 0x00, 0x00});
     private final String sImageRatioSize = new String(new char[]    {0x76, 0x00, 0x31, 0x00, 0x00});
+    private final String sImageResized = new String(new char[]      {0x76, 0x00, 0x54, 0x00, 0x00});
     private boolean stopTakingPicture=false;
     private boolean compresRatio=true;
     
-    private final String sMcuCommandsStart = new String(new char[]  {0x76, 0x01, 0x01, 0x01});
-    private final String sMcuCommand = new String(new char[]        {0x76, 0x75}); //+4 Byte message
-    private final String sMcuCommandsStop = new String(new char[]   {0x76, 0x02, 0x02, 0x02});
+    private final String sMcuCommandsStart = new String(new char[]  {0x76, 0x75, 0x76, 0x01, 0x01, 0x01});
+    private final String sMcuCommand = new String(new char[]        {0x76, 0x75, 0x76}); //+3 Byte message
+    private final String sMcuCommandsStop = new String(new char[]   {0x76, 0x75, 0x76, 0x01, 0x01, 0x02});
     private boolean mcuListen = false;
     
     private void checkRecievedData(String message) { //process recieved data
@@ -120,7 +155,7 @@ public class ProcessData implements Runnable {
         if (message.length()>10 && message.substring(message.length()-11, message.length()).equals(sCamInit)) {
             System.out.println("initComplete");
             
-            camDeath.endTick();
+            camDeath.killTick();
             
             compresRatio=true;
             
@@ -131,18 +166,27 @@ public class ProcessData implements Runnable {
                 System.out.println("changed compress ratio");
                 compresRatio=false;
                 
-                camDeath.endTick();
+                camDeath.killTick();
                 
                 sendToCam(camDo.setJpegSize); //change img size to 320x240
             }
             else {
                 System.out.println("changed image size");
+                camDeath.killTick();
+                
+                startTimer("imageResizedPhotoTimerA");
             }
+        }
+        if (message.equals(sImageResized)) { //picture taked
+            System.out.println("changed image size");
+            camDeath.killTick();
+
+            startTimer("imageResizedPhotoTimerB");
         }
         if (message.equals(sTakePicture)) { //picture taked
             System.out.println("picture taked");
             
-            camDeath.endTick();
+            camDeath.killTick();
             
             if (!stopTakingPicture) sendToCam(camDo.readJpegSize); //read JPEG size
             stopTakingPicture=false;
@@ -150,7 +194,7 @@ public class ProcessData implements Runnable {
         if (message.length()>2 && message.substring(0, message.length()-2).equals(sJpegSize)) { //recieve JPEG size
             System.out.println("get Jpeg size");
            
-            camDeath.endTick();
+            camDeath.killTick();
             
             XH=(int)message.charAt(7);
             XL=(int)message.charAt(8);
@@ -171,7 +215,7 @@ public class ProcessData implements Runnable {
         }
         if (message.equals(sJpegFileContent)) { //picture taked
             
-            camDeath.endTick();
+            camDeath.killTick();
             
             if (jpegReading) {
                 jpegReading=false;
@@ -182,18 +226,7 @@ public class ProcessData implements Runnable {
                 stopTakingPicture=true;
                 sendToCam(camDo.stopTakePhoto);
                 
-                if (bridge.getAppRef().getAutoPhotos()) {
-                    Timer connTimer = new Timer();
-                    connTimer.scheduleAtFixedRate(new TimerTask() {
-                        @Override
-                        public void run() {
-                            System.out.println("photo");
-                            sendToCam(ProcessData.camDo.takeFoto);
-
-                            this.cancel();
-                        }
-                    }, 0, Integer.parseInt(bridge.getAppRef().getAutoPhotosTime()));
-                }
+                
                 //conn.send(sOutStopTakePicture); //ukončení přijímání .jpg
             }
             else {
@@ -202,7 +235,9 @@ public class ProcessData implements Runnable {
                 
                 makeImgFile = new MakeFile();
                 fileThread = new Thread(makeImgFile);
+                fileThread.setPriority(4);
                 fileThread.setDaemon(true);
+                fileThread.setName("MakeFile");
                 fileThread.start();
             }
         }
@@ -212,67 +247,131 @@ public class ProcessData implements Runnable {
             System.out.println("MCU listen");
             mcuListen=true;
         }
-        if (message.length()>4 && message.substring(0, message.length()-4).equals(sMcuCommand)) { //recieve MCU message
-            System.out.println("MCU command");  
-        }
         if (message.equals(sMcuCommandsStop)) { //switch off MCU listen mode
             System.out.println("MCU not listen"); 
             mcuListen=false;
         }
+        if (mcuListen && message.length()>3 && message.substring(0, message.length()-3).equals(sMcuCommand)) { //recieve MCU message
+            System.out.println("MCU command");  
+            messageToMcu(message.substring(3, message.length()));
+        }
+        
         // ******** end MCU block ********
+    }
+    private void messageToMcu(String message) {
+        System.out.println("message - " + message);
     }
     public void sendToCam(camDo cDo) {
         sendToCam(cDo, null);
     }
     public void sendToCam(camDo cDo, char[] adition) {
-        if (cDo.equals(camDo.reset)) { 
-            conn.send(new String(new char[] {0x56, 0, 0x26, 0})); //reset Cam
-            gettingPhoto=false;
-            jpegReading=false;
-            stopTakingPicture=false;
-        }
-        if (cDo.equals(camDo.takeFoto)) { 
-            if (!gettingPhoto) {
-                gettingPhoto=true;
-                conn.send(new String(new char[] {0x56, 0, 0x36, 0x01, 0})); //take photo
+        if (conn!=null) {
+            if (cDo.equals(camDo.reset)) { 
+                conn.send(new String(new char[] {0x56, 0, 0x26, 0})); //reset Cam
+                gettingPhoto=false;
+                jpegReading=false;
+                stopTakingPicture=false;
             }
+            if (cDo.equals(camDo.takeFoto)) { 
+                if (!gettingPhoto) {
+                    gettingPhoto=true;
+                    conn.send(new String(new char[] {0x56, 0, 0x36, 0x01, 0})); //take photo
+                }
+            }
+            if (cDo.equals(camDo.stopTakePhoto)) {
+                conn.send(sOutStopTakePicture);
+                gettingPhoto=false;
+            }
+            if (cDo.equals(camDo.compressRatio)) {
+                conn.send(new String(new char[] {0x56, 0x00, 0x31, 0x05, 0x01, 0x01, 0x12, 0x04, 0xFF})); //change compress ratio
+            }
+            if (cDo.equals(camDo.setJpegSize)) {
+                conn.send(new String(new char[] {0x56, 0x00, 0x54, 0x01, 0x11})); //change img size to 320x240
+            }
+            if (cDo.equals(camDo.readJpegSize)) {
+                conn.send(new String(new char[] {0x56, 0x00, 0x34, 0x01, 0x00})); //read JPEG size
+            }
+            if (cDo.equals(camDo.jpegData)) {
+                conn.send(new String(new char[] {0x56, 0x00, 0x32, 0x0C, 0x00, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (char)XH, (char)XL, 0x00, 0x0A})); //read JPEG data
+            }
+
+            camDeath.startTick(timerDo.camNotResponse);
         }
-        if (cDo.equals(camDo.stopTakePhoto)) {
-            conn.send(sOutStopTakePicture);
-            gettingPhoto=false;
+        else {
+            System.out.println("conn not defined");
         }
-        if (cDo.equals(camDo.compressRatio)) {
-            conn.send(new String(new char[] {0x56, 0x00, 0x31, 0x05, 0x01, 0x01, 0x12, 0x04, 0xFF})); //change compress ratio
-        }
-        if (cDo.equals(camDo.setJpegSize)) {
-            conn.send(new String(new char[] {0x56, 0x00, 0x54, 0x01, 0x11})); //change img size to 320x240
-        }
-        if (cDo.equals(camDo.readJpegSize)) {
-            conn.send(new String(new char[] {0x56, 0x00, 0x34, 0x01, 0x00})); //read JPEG size
-        }
-        if (cDo.equals(camDo.jpegData)) {
-            conn.send(new String(new char[] {0x56, 0x00, 0x32, 0x0C, 0x00, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (char)XH, (char)XL, 0x00, 0x0A})); //read JPEG data
-        }
-        
-        camDeath.startTick(timerDo.camNotResponse);
     }
     public void sendToMcu(mcuDo mDo) {
         sendToMcu(mDo, null);
     }
     public void sendToMcu(mcuDo mDo, char[] adition) {
         if (mDo.equals(mcuDo.reset)) {
-            sendToMcu((char)0, (char)0, (char)0, (char)0);
+            sendToMcu((char)0, (char)0, (char)0);
         }
         if (mDo.equals(mcuDo.startListen)) {
             mcuListen=true;
-            sendToMcu((char)1, (char)1, (char)1, (char)1);
+            sendToMcu((char)1, (char)1, (char)1);
         }
         if (mDo.equals(mcuDo.stopListen)) {
-            sendToMcu((char)1, (char)1, (char)1, (char)2);
+            sendToMcu((char)1, (char)1, (char)2);
+        }
+        if (mDo.equals(mcuDo.servo1)) {
+            if (!mcuListen) {
+                sendToMcu(mcuDo.startListen);
+                sendToMcu((char)2, (char)1, adition[0]);
+                sendToMcu(mcuDo.stopListen);
+            }
+            else {
+                sendToMcu((char)2, (char)1, adition[0]);
+            }
+        }
+        if (mDo.equals(mcuDo.servo2)) {
+            if (!mcuListen) {
+                sendToMcu(mcuDo.startListen);
+                sendToMcu((char)2, (char)2, adition[0]);
+                sendToMcu(mcuDo.stopListen);
+            }
+            else {
+                sendToMcu((char)2, (char)2, adition[0]);
+            }
+        }
+        if (mDo.equals(mcuDo.servo3)) {
+            if (!mcuListen) {
+                sendToMcu(mcuDo.startListen);
+                sendToMcu((char)2, (char)3, adition[0]);
+                sendToMcu(mcuDo.stopListen);
+            }
+            else {
+                sendToMcu((char)2, (char)3, adition[0]);
+            }
         }
     }
-    public void sendToMcu(char HA, char LA, char HD, char LD) { //send command to MCU
-        conn.send(new String(new char[] {0x56, 0x55, HA, LA, HD, LD}));
+    public void sendToMcu(char A, char HD, char LD) { //send command to MCU
+        System.out.println(A+"-"+HD+"-"+LD);
+        conn.send(new String(new char[] {0x76, 0x75, A, HD, LD}));
+    }
+    private synchronized void startTimer(String name) {
+        if (!getPhotoTimer && bridge.getAppRef().getAutoPhotos()) {
+            getPhotoTimer=true;
+            Thread connTimer = new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(Integer.parseInt(bridge.getAppRef().getAutoPhotosTime()));
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(ProcessData.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    
+                    System.out.println("photo");
+                    sendToCam(ProcessData.camDo.takeFoto);
+
+                    getPhotoTimer=false;
+                }
+            };
+            connTimer.setDaemon(true);
+            connTimer.setName(name);
+            connTimer.start();
+        }
     }
     
     private class MakeFile implements Runnable {
@@ -282,11 +381,13 @@ public class ProcessData implements Runnable {
         private boolean run=false;
         private boolean close=false;
         private Object fifoLock=new Object();
+        private String imgName="";
         
         private Queue<Character> fifo = null;
         
         public MakeFile() {
-            this.file = "camImg_"+new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())+".jpg";
+            imgName="camImg_"+new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime())+".jpg";
+            this.file = "photos/"+imgName;
             fifo = new LinkedList<>();
         }
         public MakeFile(String file) {
@@ -308,14 +409,18 @@ public class ProcessData implements Runnable {
                 Logger.getLogger(ProcessData.class.getName()).log(Level.SEVERE, null, ex);
             }
             
-            try {
-                Thread.sleep(150);
-                File showImg =new File( file );
-                Desktop.getDesktop().open(showImg);
-            } catch (InterruptedException | IOException ex) {
-                Logger.getLogger(ProcessData.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            //try {
+                bridge.getAppRef().setPhoto(imgName);
+                //Thread.sleep(150);
+                //File showImg =new File( file );
+                //Desktop.getDesktop().open(showImg);
+            //} catch (InterruptedException | IOException ex) {
+            //    Logger.getLogger(ProcessData.class.getName()).log(Level.SEVERE, null, ex);
+            //}
             closed=true;
+            run=false;
+            
+            startTimer("getNewImage");
         }
         public boolean isClosed() {
             return closed;
@@ -362,7 +467,7 @@ public class ProcessData implements Runnable {
     private class DeathTimer implements Runnable {
         private int delay;
         private boolean tick=false;
-        private timerDo toDo;
+        private timerDo toDo=timerDo.nothing;
         
         public DeathTimer(int delay) {
             this.delay=delay;
@@ -383,6 +488,7 @@ public class ProcessData implements Runnable {
                     try {
                         Thread.sleep(delay);
                         if (tick) endTick();
+                        tick=false;
                     } catch (InterruptedException ex) {
                         Logger.getLogger(ProcessData.class.getName()).log(Level.SEVERE, null, ex);
                     }

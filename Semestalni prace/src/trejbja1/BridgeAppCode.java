@@ -63,7 +63,7 @@ public class BridgeAppCode {
             connDelay=conn.getConDelay()/1000;
             setConnButon(langValues.get("Connecting")+" ("+ (connDelay+1) +")", -1);
             
-            connTimer = new Timer();
+            connTimer = new Timer("connectTimer");
             connTimer.scheduleAtFixedRate(new TimerTask() {
                 
                 @Override
@@ -94,7 +94,7 @@ public class BridgeAppCode {
         connTimer.cancel();
     }
     synchronized public void setConnButon(String text, int statutConn) {
-        app.conn.setText(text);
+        app.setTextConn(text);
         elementStat.put("conn", statutConn);
     }
     public void saveSettings() {
@@ -179,6 +179,8 @@ public class BridgeAppCode {
         langValues.put("Connecting", xmlLang.getLanguageValue("main", "Connecting"));
         langValues.put("Disconnect", xmlLang.getLanguageValue("main", "Disconnect"));
         
+        langValues.put("TakePhoto", xmlLang.getLanguageValue("main", "TakePhoto"));
+        
         langValues.put("Rudder", xmlLang.getLanguageValue("main", "Rudder"));
         langValues.put("Sail1", xmlLang.getLanguageValue("main", "Sail1"));
         langValues.put("Sail2", xmlLang.getLanguageValue("main", "Sail2"));
@@ -209,10 +211,11 @@ public class BridgeAppCode {
         return langValues;
     }
     public void initProcessDataThread() {
-        Thread processDataThred=new Thread(processData= new ProcessData(this));
-        processDataThred.setDaemon(true);
+        Thread processDataThread=new Thread(processData= new ProcessData(this));
+        processDataThread.setName("ProcessData");
+        processDataThread.setDaemon(true);
 
-        processDataThred.start();
+        processDataThread.start();
     }
     public ProcessData getProcessData() {
         return processData;

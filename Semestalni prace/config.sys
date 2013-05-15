@@ -14,10 +14,10 @@
     <text id="Network">LBoat</text>
     <text id="NetworkPassword">8cQ8G3SsDELDzZH2a1c2Pw==</text>
     <text id="PasswordHashCode">secret</text>
-    <text id="AutoPhotos">True</text>
-    <text id="AutoPhotosTime">1700</text>
+    <text id="AutoPhotos">False</text>
+    <text id="AutoPhotosTime">3000</text>
     <text id="Port">5003</text>
-    <text id="LastIp">192.168.3.3</text>
+    <text id="LastIp">192.168.10.30</text>
     <text id="IP_1">192.168.1.3</text>
     <text id="IP_2">192.168.3.4</text>
     <text id="IP_3">192.168.3.5</text>

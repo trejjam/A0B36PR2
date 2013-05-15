@@ -76,6 +76,7 @@ public class TcpIp {
       threadContent= new TcpThread(IP, port);
 
       tcpThread=new Thread(threadContent);
+      tcpThread.setName("RecieveThread");
       tcpThread.setDaemon(true);
 
       tcpThread.start();
@@ -107,7 +108,12 @@ public class TcpIp {
           }
         }
 
-        tcpThreadSend.interrupt();
+        try {
+            tcpThreadSend.interrupt();
+        }
+        catch (NullPointerException e) {
+            System.out.println("tcpThreadSend exception");
+        }
       }
       else {
         return false;
@@ -185,18 +191,23 @@ public class TcpIp {
                 }*/
                 
                 message="";
-                if ((lengthInByte=inputStream.read(inByte))!=0) {
-                    if (lengthInByte==-1) {
-                        System.out.println("Disconnected");
-                        break; 
-                    }
-                    
-                    for (int i=0; i<lengthInByte; i++) {
-                        if (echo) System.out.print((char)inByte[i]);
-                        message += (char)inByte[i];
-                    }                  
-                }
+                try {
+                    if ((lengthInByte=inputStream.read(inByte))!=0) {
+                        if (lengthInByte==-1) {
+                            System.out.println("Disconnected");
+                            break; 
+                        }
 
+                        for (int i=0; i<lengthInByte; i++) {
+                            if (echo) System.out.print((char)inByte[i]);
+                            message += (char)inByte[i];
+                        }                  
+                    }
+                }
+                catch (SocketTimeoutException e) {
+                    System.out.println("Disconnected");
+                    break;
+                }
 if (echo) {
                 System.out.print("\nIn: \n" + " - ");
                 for (int i=0; i<message.length(); i++) {
@@ -232,8 +243,8 @@ if (echo) {
 
           try {
               // pokud mame skoncit, tak uzavreme otevrene proudy a socket
-              streamIn.close();
-              streamOut.close();
+              //streamIn.close();
+              //streamOut.close();
               socket.close();
           } catch (IOException ex) {
               Logger.getLogger(TcpIp.class.getName()).log(Level.SEVERE, null, ex);
@@ -243,6 +254,7 @@ if (echo) {
         threadSendContent= new TcpThreadSend();
 
         tcpThreadSend=new Thread(threadSendContent);
+        tcpThreadSend.setName("SendThread");
         tcpThreadSend.setDaemon(true);
         //tcpThreadSend.setPriority(1);
 

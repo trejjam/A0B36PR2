@@ -40,6 +40,10 @@
       <text lang="cz">Odpojit</text>
       <text lang="en">Disconect</text>
     </string>
+    <string id="TakePhoto">
+      <text lang="cz">Stáhnout fotku</text>
+      <text lang="en">Take photo</text>
+    </string>
     <string id="Rudder">
       <text lang="cz">Kormidlo</text>
       <text lang="en">Ko_en</text>
