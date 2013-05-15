@@ -30,7 +30,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
- *
+ * Čtení a zápis do XML souborů
  * @author Jan
  */
 public class Xml {
@@ -44,16 +44,34 @@ public class Xml {
     private Document xmlCreate;
     private Element rootElementCreate;
     
+    /**
+     * Konstruktor pro čtení konfiguračního XML
+     * Konstruktor pro čtení jazykového XML - při pozdějším doplnění jazyku
+     * @param name 
+     */
     public Xml(String name) {
        this.name=name; 
     }
+    /**
+     * Konstruktor pro čtení jazykového XML
+     * @param name
+     * @param language 
+     */
     public Xml(String name, String language) {
         this(name);
         this.language=language;
     }
+    /**
+     * Nastavení jazyku
+     * @param language 
+     */
     public void setLanguage(String language) {
         this.language=language;
     }
+    /**
+     * Načtení souboru
+     * @return 
+     */
     public boolean Load() {
         try {
             privateLoad();
@@ -64,6 +82,12 @@ public class Xml {
         }
         return false;
     }
+    /**
+     * Vlastní načtení souboru
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws IOException 
+     */
     private void privateLoad() throws ParserConfigurationException, SAXException, IOException {
         File is = new File(name);// getClass().getResourceAsStream(name);
         DocumentBuilderFactory xmlFactory = DocumentBuilderFactory.newInstance();
@@ -74,21 +98,58 @@ public class Xml {
         XPathFactory xpathFact = XPathFactory.newInstance();
         xpath = xpathFact.newXPath();
     }
+    /**
+     * Získání hodnoty podle XML řetězce
+     * @param key
+     * @return
+     * @throws XPathExpressionException 
+     */
     public String getByKey(String key) throws XPathExpressionException {
         return (String) getByKey(key, XPathConstants.STRING);
     }
+    /**
+     * Získání hodnoty podle XML řetězce
+     * Volba návratového typu
+     * @param key
+     * @param retType
+     * @return
+     * @throws XPathExpressionException 
+     */
     public Object getByKey(String key, QName retType) throws XPathExpressionException {
         return xpath.evaluate(key, xmlDoc, retType);
     }
+    /**
+     * Získání reference na xpath
+     * @return 
+     */
     public XPath getXpath() {
         return xpath;
     }
+    /**
+     * Získání reference na xmlDoc
+     * @return 
+     */
     public Document getDocument() {
         return xmlDoc;
     }
+    /**
+     * Získání hodnoty podle skupiny a klíče
+     * bez ošetření vyjímek
+     * @param group
+     * @param text
+     * @return
+     * @throws XPathExpressionException 
+     */
     public String getValueThrows(String group, String text) throws XPathExpressionException {
         return (String) getByKey("/localizableStrings/group[@id='"+group+"']/text[@id='"+text+"']");
     }
+    /**
+     * Získání hodnoty podle skupiny a klíče
+     * s ošetření vyjímek
+     * @param group
+     * @param text
+     * @return 
+     */
     public String getValue(String group, String text) {
         try {
             return getValueThrows(group, text);
@@ -97,6 +158,12 @@ public class Xml {
             return "";
         }
     }
+    /**
+     * Získání jazykových hodnot podle skupiny a klíče
+     * @param group
+     * @param string
+     * @return 
+     */
     public String getLanguageValue(String group, String string) {
         if (language.equals("")) {
             System.out.println("not defined language");
@@ -123,12 +190,33 @@ public class Xml {
         }
     }
     
+    /**
+     * Vytvoření XML elementu
+     * @param element
+     * @param value
+     * @return 
+     */
     private Element createElement(String element, String value) {
         return createElement(element, "", "", value);
     }
+    /**
+     * Vytvoření XML elementu s atributem, hodnotou atributu bez hodnoty obsahu - skupina
+     * @param element
+     * @param attribute
+     * @param attValue
+     * @return 
+     */
     private Element createElement(String element, String attribute, String attValue) {
         return createElement(element, attribute, attValue, "");
     }
+    /**
+     * Vytvoření XML elementu s atributem, hodnotou atributu a hodnotou obsahu
+     * @param element
+     * @param attribute
+     * @param attValue
+     * @param value
+     * @return 
+     */
     private Element createElement(String element, String attribute, String attValue, String value) {
         Element elem = xmlCreate.createElement(element);
         if (!attribute.equals("")) {
@@ -142,7 +230,10 @@ public class Xml {
         return elem;
     }
     
-    void createXml() {
+    /**
+     * Vytvoření XML objektu
+     */
+    private void createXml() {
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         try { 
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -151,12 +242,18 @@ public class Xml {
             Logger.getLogger(Xml.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    void addRoot() {
+    /**
+     * Přidání hlavičky
+     */
+    private void addRoot() {
         rootElementCreate = xmlCreate.createElement("localizableStrings");
 	xmlCreate.appendChild(rootElementCreate);
         
     }
-    void addMeta() {
+    /**
+     * Přidání meta hodnot
+     */
+    private void addMeta() {
         Element meta = xmlCreate.createElement("meta");
         rootElementCreate.appendChild(meta);
         
@@ -166,7 +263,12 @@ public class Xml {
         meta.appendChild(createElement("language", "multilingual"));
         meta.appendChild(createElement("grouping", "multi"));    
     }
-    void addConfig(Xml xmlLang, BridgeAppCode bridge) {
+    /**
+     * Přidání konfiguračních hodnot
+     * @param xmlLang
+     * @param bridge 
+     */
+    private void addConfig(Xml xmlLang, BridgeAppCode bridge) {
         if (this==xmlLang) return;
         
         Element group = createElement("group" ,"id" , "Config");
@@ -210,7 +312,10 @@ public class Xml {
         }
         group.appendChild(createElement("text", "id", "IpCount", getValue("Config", "IpCount")));
     }
-    void saveXml() {
+    /**
+     * Uložení XML do souboru
+     */
+    private void saveXml() {
         try {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
@@ -229,7 +334,11 @@ public class Xml {
             Logger.getLogger(Xml.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    void saveConfigXml(BridgeAppCode bridge) {
+    /**
+     * Uložení konfigurace
+     * @param bridge 
+     */
+    public void saveConfigXml(BridgeAppCode bridge) {
         createXml();
         addRoot();
         addMeta();

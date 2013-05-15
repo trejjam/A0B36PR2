@@ -654,8 +654,8 @@ public class App extends javax.swing.JFrame {
   
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox autoPhotosCheck;
-    public javax.swing.JButton conn;
-    public javax.swing.JComboBox ipAddress;
+    private javax.swing.JButton conn;
+    private javax.swing.JComboBox ipAddress;
     private javax.swing.JButton jButton1;
     private javax.swing.JPanel jCompass;
     private javax.swing.JPanel jImage;
@@ -667,7 +667,7 @@ public class App extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
-    public javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JSlider jRudder;
     private javax.swing.JSlider jSail1;
     private javax.swing.JSlider jSail2;
