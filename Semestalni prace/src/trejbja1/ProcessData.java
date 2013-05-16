@@ -270,7 +270,6 @@ public class ProcessData implements Runnable {
         System.out.println("message - " + message);
         if (message.charAt(0)==0x03) {
             if (message.charAt(1)==0x01) { //kompas
-                //int aValue=Integer.toHexString(new Integer (message.charAt(2)));
                 float angle=message.charAt(2);
                 if (angle>130) angle=0xFF-(65535-angle);
                 
