@@ -233,7 +233,7 @@ public class TcpIp {
 
             startSendThread();
 
-            bridge.getProcessData().sendToMcu(ProcessData.mcuDo.stopListen); //reset Cam
+            //bridge.getProcessData().sendToMcu(ProcessData.mcuDo.stopListen); //reset Cam
             bridge.getProcessData().sendToCam(ProcessData.camDo.reset); //reset Cam
 
             while(TcpThread) {

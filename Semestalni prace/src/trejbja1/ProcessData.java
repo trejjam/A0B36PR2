@@ -75,7 +75,7 @@ public class ProcessData implements Runnable {
                 if (jpegReading) {
                     //jpegData+=(char)znak;
                     
-                    if (znak==0x76) {
+                    if (znak==0x76 && !(mcuI==1 && mcuMessage[0]==0x76 && mcuMessage[1]==0x75)) {
                         mcuMessage[0]=(char)znak;
                         mcuMessage[1]=0;
                         mcuI=0;
@@ -117,7 +117,7 @@ public class ProcessData implements Runnable {
                         }
                     }
                 }
-                if (znak==(int)0x76) {
+                if (znak==(int)0x76 && !(message.length()==2 && message.charAt(0)==(char)0x76 && message.charAt(1)==(char)0x75)) {
                     message="";
                 }
                 message+=Character.toString((char)znak);
@@ -255,7 +255,7 @@ public class ProcessData implements Runnable {
             System.out.println("MCU not listen"); 
             mcuListen=false;
         }
-        if (mcuListen && message.length()>3 && message.substring(0, message.length()-3).equals(sMcuCommand)) { //recieve MCU message
+        if (message.length()>3 && message.substring(0, message.length()-3).equals(sMcuCommand)) { //recieve MCU message
             System.out.println("MCU command");  
             messageToMcu(message.substring(3, message.length()));
         }
@@ -268,6 +268,28 @@ public class ProcessData implements Runnable {
      */
     private void messageToMcu(String message) {
         System.out.println("message - " + message);
+        if (message.charAt(0)==0x03) {
+            if (message.charAt(1)==0x01) { //kompas
+                //int aValue=Integer.toHexString(new Integer (message.charAt(2)));
+                float angle=message.charAt(2);
+                if (angle>130) angle=0xFF-(65535-angle);
+                
+                angle*=360;
+                angle/=256;
+                System.out.println(angle);
+                
+                System.out.println("Angle: "+angle);
+                bridge.getAppRef().compasAngle(360-angle);
+            }
+        }
+        if (message.charAt(0)==0x04) { //battery
+            int batteryH=(int)message.charAt(1);
+            if (batteryH>130) batteryH=0xFF-(65535-batteryH);
+            int batteryL=(int)message.charAt(2);
+            if (batteryL>130) batteryL=0xFF-(65535-batteryL);
+
+            System.out.println("Battery: "+batteryH +" "+batteryL);
+        }
     }
     /**
      * Odeslání příkazu do Kamery
@@ -344,34 +366,20 @@ public class ProcessData implements Runnable {
             sendToMcu((char)1, (char)1, (char)2);
         }
         if (mDo.equals(mcuDo.servo1)) {
-            if (!mcuListen) {
+            /*if (!mcuListen) {
                 sendToMcu(mcuDo.startListen);
                 sendToMcu((char)2, (char)1, adition[0]);
                 sendToMcu(mcuDo.stopListen);
             }
-            else {
+            else {*/
                 sendToMcu((char)2, (char)1, adition[0]);
-            }
+            //}
         }
         if (mDo.equals(mcuDo.servo2)) {
-            if (!mcuListen) {
-                sendToMcu(mcuDo.startListen);
-                sendToMcu((char)2, (char)2, adition[0]);
-                sendToMcu(mcuDo.stopListen);
-            }
-            else {
-                sendToMcu((char)2, (char)2, adition[0]);
-            }
+            sendToMcu((char)2, (char)2, adition[0]);
         }
         if (mDo.equals(mcuDo.servo3)) {
-            if (!mcuListen) {
-                sendToMcu(mcuDo.startListen);
-                sendToMcu((char)2, (char)3, adition[0]);
-                sendToMcu(mcuDo.stopListen);
-            }
-            else {
-                sendToMcu((char)2, (char)3, adition[0]);
-            }
+            sendToMcu((char)2, (char)3, adition[0]);
         }
     }
     /**
