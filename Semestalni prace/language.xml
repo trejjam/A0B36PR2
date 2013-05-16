@@ -46,15 +46,15 @@
     </string>
     <string id="Rudder">
       <text lang="cz">Kormidlo</text>
-      <text lang="en">Ko_en</text>
+      <text lang="en">Rudder</text>
     </string>
     <string id="Sail1">
       <text lang="cz">Vychýlení plachty 1</text>
-      <text lang="en">Ko_en</text>
+      <text lang="en">Sail 1</text>
     </string>
     <string id="Sail2">
       <text lang="cz">Vychýlení plachty 2</text>
-      <text lang="en">Ko_en</text>
+      <text lang="en">Sail 2</text>
     </string>
   </group>
   <group id="settings">

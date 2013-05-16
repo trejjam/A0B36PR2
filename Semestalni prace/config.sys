@@ -9,12 +9,12 @@
   </meta>
   <group id="Config">
     <text id="LanguageFile">language.xml</text>
-    <text id="Language">cz</text>
+    <text id="Language">en</text>
     <text id="SetNetwork">False</text>
     <text id="Network">LBoat</text>
     <text id="NetworkPassword">8cQ8G3SsDELDzZH2a1c2Pw==</text>
     <text id="PasswordHashCode">secret</text>
-    <text id="AutoPhotos">False</text>
+    <text id="AutoPhotos">True</text>
     <text id="AutoPhotosTime">3000</text>
     <text id="Port">5003</text>
     <text id="LastIp">192.168.10.30</text>
