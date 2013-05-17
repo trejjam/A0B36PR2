@@ -388,8 +388,10 @@ public class ProcessData implements Runnable {
      * @param LD 
      */
     public void sendToMcu(char A, char HD, char LD) { //send command to MCU
-        System.out.println(A+"-"+HD+"-"+LD);
-        conn.send(new String(new char[] {0x76, 0x75, A, HD, LD}));
+        if (conn!=null) {
+            System.out.println(A+"-"+HD+"-"+LD);
+            conn.send(new String(new char[] {0x76, 0x75, A, HD, LD}));
+        }
     }
     /**
      * Spuštění časovače pro automatizovaný příjem fotografie (vždy běží pouze jednou)
